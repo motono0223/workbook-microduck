@@ -190,7 +190,9 @@ sim2real を前提とした標準的な設計。
 
 頭部を大きく動かしながら（最終範囲は pitch ±1.1 rad, yaw ±1.4 rad）、頻繁な押し外乱の下でも転倒なく歩き続ける。iter 250 と比べて体の揺れが少なく、足運びが小さく滑らか（遊脚高さ 1.35 cm、行動加速度が 1/5）。
 
-### 多数個体の同時歩行（36 体）
+### 多数個体の同時歩行（36 / 400 / 1024 体）
+
+#### 36 体（6×6）
 [videos/multi36_model_2999.mp4](videos/multi36_model_2999.mp4)（20 秒, 50 fps, 1280×720）
 
 ![multi36](videos/still_multi36_model_2999.png)
@@ -205,6 +207,20 @@ sim2real を前提とした標準的な設計。
 2 秒・10 秒・18 秒時点。時間とともに各個体が指令に従って散らばっていく:
 
 ![multi36 strip](videos/strip_multi36_model_2999.png)
+
+#### 400 体（20×20, 間隔 0.8 m）
+[videos/multi400_model_2999.mp4](videos/multi400_model_2999.mp4)（20 秒, 50 fps, 1920×1080）
+
+![multi400](videos/still_multi400_model_2999.png)
+
+#### 1024 体（32×32, 間隔 0.6 m）
+[videos/multi1024_model_2999.mp4](videos/multi1024_model_2999.mp4)（20 秒, 50 fps, 1920×1080）
+
+![multi1024](videos/still_multi1024_model_2999.png)
+
+学習時の並列数 4096 体の 1/4 にあたる。これだけの個体が、それぞれ別の指令・別の物理パラメータの下で同時に歩いている。
+描画コスト（WSL2 上の GPU 描画, 影あり）: 36 体 0.09 s/frame、400 体 0.35 s/frame、1024 体 0.80 s/frame。
+描画は個体ごとに状態を CPU に取り出して描くため、個体数にほぼ比例して重くなる（物理計算自体は GPU 上で一括なので軽い）。
 
 ---
 

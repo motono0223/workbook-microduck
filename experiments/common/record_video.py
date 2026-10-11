@@ -23,6 +23,7 @@ from pathlib import Path
 os.environ.setdefault("MUJOCO_GL", "egl")
 
 import imageio.v2 as imageio
+import mujoco
 import numpy as np
 import torch
 
@@ -81,6 +82,12 @@ def main() -> None:
     origins = env.scene.env_origins.cpu().numpy()
     cam = env._offline_renderer._cam
     cam.lookat[:] = origins.mean(axis=0) + np.array([0.0, 0.0, 0.1])
+    # mujoco.Renderer の既定 max_geom=10000 は約 140 体分（1 体 ≈ 70 geom）。超える分は描画されないので作り直す
+    off = env._offline_renderer
+    need = 80 * args.num_envs + 1000
+    if need > off.renderer.scene.maxgeom:
+      off.close()
+      off._renderer = mujoco.Renderer(model=off._model, height=args.height, width=args.width, max_geom=need)
   fps = round(1.0 / env.step_dt / args.render_every)
   env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
