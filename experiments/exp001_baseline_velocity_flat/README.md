@@ -21,13 +21,15 @@ vast.ai: `common/vast_setup.sh` の後に `run.sh` を同じ引数で実行。
 公式 README の目安: 4096 envs で 1〜2 時間で使える歩容。公式既定の max_iterations は 50,000 だが、
 まずは 3000 iteration（RTX 3090 で約 2.2 s/iter → 約 1.8 h）で打ち切る。
 
-## 生成物（outputs/）
-- `<日時>_exp001/model_N.pt` … チェックポイント（250 iter ごと, PyTorch 重み）
-- `<日時>_exp001/<日時>_exp001.onnx` … 実機デプロイ用 ONNX（学習時に自動書き出し, 観測正規化込み）
-- `<日時>_exp001/events.out.tfevents.*` … tensorboard ログ
-- `videos/*.mp4` … `make_video.sh` で書き出した歩行動画（50 fps, ヘッドレス EGL 描画）
-- `plots/*.png`, `plots/scalars.csv` … 学習曲線（`common/plot_training.py`, run.sh 終了時に自動生成）
+## 生成物
+学習 1 回分の出力はすべて run ディレクトリ `outputs/<日時>_<RUN_NAME>/` にまとまる（再学習しても上書きされない）。
+- `model_N.pt` … チェックポイント（250 iter ごと, PyTorch 重み）
+- `<run名>.onnx` … 実機デプロイ用 ONNX（学習時に自動書き出し, 観測正規化込み）
+- `events.out.tfevents.*` … tensorboard ログ / `params/` … 学習時の env・agent 設定
 - `train.log` … 標準出力
+- `plots/*.png`, `plots/scalars.csv` … 学習曲線（`common/plot_training.py`, run.sh 終了時に自動生成）
+- `videos/*.mp4` … `make_video.sh` で書き出した歩行動画（既定でチェックポイントと同じ run の videos/ に出る）
+- `summary.md` … モデル・報酬設計の解説と結果の可視化
 
 ## 記録する項目
 - GPU 種別 / num_envs / 学習時間 / iteration 数
@@ -38,9 +40,9 @@ vast.ai: `common/vast_setup.sh` の後に `run.sh` を同じ引数で実行。
 ## 結果（2026-10-10, ローカル RTX 3090 / Docker）
 - 4096 envs × 3000 iter、所要 1h57m（約 1.9〜2.2 s/iter）、VRAM 約 5.7 GB
 - run: `outputs/2026-10-10_08-15-27_exp001/`（最終: `model_2999.pt`, `2026-10-10_08-15-27_exp001.onnx`）
-- 動画: `outputs/videos/model_2999.mp4`（20 秒, ランダム速度・頭部姿勢コマンド, 転倒なし）
+- 動画: `outputs/2026-10-10_08-15-27_exp001/videos/model_2999.mp4`（20 秒, ランダム速度・頭部姿勢コマンド, 転倒なし）
 - 詳細レポート: `outputs/2026-10-10_08-15-27_exp001/summary.md`（モデル・報酬設計の解説、プロット・動画付き）
-- 途中経過の動画: `outputs/videos/model_{0,250,500}.mp4`（サムネイル `strip_model_*.png`）
+- 途中経過の動画: `outputs/2026-10-10_08-15-27_exp001/videos/model_{0,250,500}.mp4`（サムネイル `strip_model_*.png`）
 
 | iter | Mean reward | Ep 長 | vel_xy 誤差 | yaw 誤差 | 頭部姿勢カリキュラム |
 |---|---|---|---|---|---|
@@ -56,7 +58,7 @@ vast.ai: `common/vast_setup.sh` の後に `run.sh` を同じ引数で実行。
 ## 考察
 - 250 iter（約 9 分）で転倒しない歩行を獲得。以降はカリキュラム（頭部姿勢範囲・静止 env 比率）が広がりつつ
   yaw 追従が改善。2000 iter 前後でカリキュラム上限に到達し、報酬・誤差とも頭打ち。
-- 学習曲線（`outputs/plots/`）: カリキュラムが段階的に難しくなる 500/1000/1500/2000 iter で
+- 学習曲線（`outputs/2026-10-10_08-15-27_exp001/plots/`）: カリキュラムが段階的に難しくなる 500/1000/1500/2000 iter で
   報酬が一時的に落ち、すぐ回復する鋸歯状のパターン。`head_pose_bias` ペナルティも同じ段で深くなる。
   方策の std は 1.0 → 0.19 まで収束、`action_rate_l2` は重みが -0.1 → -1.0 に上がるため負に大きくなる（悪化ではない）。
 - `dof_pos_limits` ペナルティが 2000 iter 以降じわじわ悪化（頭部姿勢範囲が上限になった影響と思われる, 絶対値は小）。

@@ -92,7 +92,7 @@ sim2real を前提とした標準的な設計。
 | 1500 | 頭部姿勢範囲 ×1.9、`action_rate` -1.0（最終）、`head_pose_bias` 3（最終）、静止指令 20%、重心ランダム化 ±15 mm |
 | 2000 | 頭部姿勢範囲 最終値（neck/head pitch ±1.1 rad, yaw ±1.4 rad）、静止指令 25%（最終） |
 
-![curriculum](../plots/03_curriculum.png)
+![curriculum](plots/03_curriculum.png)
 
 ### 2.4 ロバスト化（ドメインランダム化・外乱）
 
@@ -110,7 +110,7 @@ sim2real を前提とした標準的な設計。
 
 ### 3.1 全体の推移
 
-![overview](../plots/01_overview.png)
+![overview](plots/01_overview.png)
 
 | iter | 平均報酬 | エピソード長 | 速度誤差 [m/s] | 旋回誤差 [rad/s] | 状態 |
 |---|---|---|---|---|---|
@@ -128,7 +128,7 @@ sim2real を前提とした標準的な設計。
 
 ### 3.2 報酬項ごとの推移
 
-![reward terms](../plots/02_reward_terms.png)
+![reward terms](plots/02_reward_terms.png)
 
 - **立つ → 歩く → 曲がる の順で習得**: `upright`・`track_linear_velocity`・`air_time` は 250 iter までに急上昇し、
   `track_angular_velocity` は 500〜2000 iter にかけて**ゆっくり**伸びる。旋回は直進より難しい課題であることがわかる。
@@ -140,7 +140,7 @@ sim2real を前提とした標準的な設計。
 
 ### 3.3 歩容の質
 
-![gait metrics](../plots/05_gait_metrics.png)
+![gait metrics](plots/05_gait_metrics.png)
 
 - 滞空時間は 0.12 秒で安定（`air_time` の報酬窓 0.125〜0.3 秒の下限付近）。
 - 遊脚の最高高さは 1.8 cm → 1.35 cm に落ち着く。`action_rate` が強まるにつれ、足を高く上げない省エネな歩容に変化。
@@ -148,7 +148,7 @@ sim2real を前提とした標準的な設計。
 
 ### 3.4 最適化の健全性
 
-![optimization](../plots/04_optimization.png)
+![optimization](plots/04_optimization.png)
 
 - Value loss は初期の急上昇（報酬スケールの急変）後 0.13 前後で安定、エントロピーは単調減少。発散なし。
 - スループットは約 5 万 env-step/s。1500 iter 付近で一時半減しているのは、同じ GPU を使う他コンテナの負荷と重なった可能性。
@@ -162,30 +162,30 @@ sim2real を前提とした標準的な設計。
 録画は `experiments/common/record_video.py`（カメラ距離 0.9 m で胴体を追従）。
 
 ### iter 0（学習前・ランダム初期化）
-[videos/model_0.mp4](../videos/model_0.mp4)
+[videos/model_0.mp4](videos/model_0.mp4)
 
-![iter0](../videos/strip_model_0.png)
+![iter0](videos/strip_model_0.png)
 
 初期姿勢のまま膝が崩れ、数秒で前のめりに倒れる（12〜16 秒のフレームは転倒中）。倒れるとリセットされ、これを繰り返す。学習曲線のエピソード長 24 ステップ（約 0.5 秒）と一致する挙動。
 
 ### iter 250（約 9 分）
-[videos/model_250.mp4](../videos/model_250.mp4)
+[videos/model_250.mp4](videos/model_250.mp4)
 
-![iter250](../videos/strip_model_250.png)
+![iter250](videos/strip_model_250.png)
 
 20 秒間一度も転ばず、脚を交互に振り出して歩く。ただし頭部はほぼ正面固定（この時点では頭部指令範囲が ±0.05〜0.07 rad と小さい）。旋回誤差はまだ大きく（3.1 rad/s）、指令方向に曲がる動きは弱い。
 
 ### iter 500（約 18 分）
-[videos/model_500.mp4](../videos/model_500.mp4)
+[videos/model_500.mp4](videos/model_500.mp4)
 
-![iter500](../videos/strip_model_500.png)
+![iter500](videos/strip_model_500.png)
 
 カリキュラム第 1 段（500 iter）で頭部指令範囲が約 3 倍に広がった直後。フレームによって頭が上下・左右に傾いており、歩きながら頭部姿勢指令に追従し始めているのがわかる。歩行自体は安定。
 
 ### iter 2999（最終）
-[videos/model_2999.mp4](../videos/model_2999.mp4)
+[videos/model_2999.mp4](videos/model_2999.mp4)
 
-![iter2999](../videos/strip_model_2999.png)
+![iter2999](videos/strip_model_2999.png)
 
 頭部を大きく動かしながら（最終範囲は pitch ±1.1 rad, yaw ±1.4 rad）、頻繁な押し外乱の下でも転倒なく歩き続ける。iter 250 と比べて体の揺れが少なく、足運びが小さく滑らか（遊脚高さ 1.35 cm、行動加速度が 1/5）。
 

@@ -4,7 +4,7 @@
   python experiments/common/plot_training.py <run_dir> [--out <dir>] [--smooth 0.98]
   （run_dir は events.out.tfevents.* を含む rsl_rl の run ディレクトリ）
 
-出力（既定: <run_dir>/../plots/）:
+出力（既定: <run_dir>/plots/）:
   01_overview.png      報酬・エピソード長・速度追従誤差・転倒・方策の探索幅
   02_reward_terms.png  報酬項ごとの推移（青=報酬, 橙=ペナルティ）
   03_curriculum.png    カリキュラム変数
@@ -123,7 +123,7 @@ def main() -> None:
   args = p.parse_args()
 
   run_dir = args.run_dir.resolve()
-  out = (args.out or run_dir.parent / "plots").resolve()
+  out = (args.out or run_dir / "plots").resolve()
   out.mkdir(parents=True, exist_ok=True)
   data = load_scalars(run_dir)
   name = run_dir.name
