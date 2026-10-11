@@ -1,0 +1,14 @@
+# WSL2 ホスト用の上書き: OpenGL 描画を GPU で行う（Mesa d3d12 ドライバ経由）
+# 素の Linux（vast.ai 等）では不要。そちらは compose.yaml の graphics capability で NVIDIA EGL が入る。
+#   docker compose -f docker/compose.yaml -f docker/compose.wsl.yaml run --rm rl ...
+# 効果（36 体 1280x720, 影あり）: CPU(llvmpipe) 8.9 s/frame → GPU(D3D12) 0.09 s/frame
+services:
+  rl:
+    devices:
+      - /dev/dxg
+    volumes:
+      - /usr/lib/wsl:/usr/lib/wsl:ro
+    environment:
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
+      - GALLIUM_DRIVER=d3d12
+      - MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA

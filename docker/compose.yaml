@@ -29,6 +29,6 @@ services:
           devices:
             - driver: nvidia
               count: all
-              capabilities: [gpu]
+              capabilities: [gpu, graphics]  # graphics: 素の Linux で NVIDIA EGL（GPU 描画）を入れる
 volumes:
   uv-cache:

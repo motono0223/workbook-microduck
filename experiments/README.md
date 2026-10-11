@@ -24,6 +24,7 @@ Microduck 制御ポリシーの学習試行。1 試行 = 1 ディレクトリ。
   （4096 envs で VRAM 約 6 GB）。初期セットアップは `common/vast_setup.sh`。
 - 学習曲線は `common/plot_training.py <run_dir>`（tensorboard ログ → PNG 5 枚 + CSV）。
 - 動画は `common/record_video.py`（ヘッドレス EGL 録画、mjlab の `play --video` は DISPLAY 必須のため）。
+  `--num-envs N` で多数個体を俯瞰。ローカル（WSL2）では `-f docker/compose.wsl.yaml` を重ねて GPU 描画する（約 100 倍速い）。
 - ローカル <-> vast.ai の転送は `common/vast_sync.sh push` / `pull <exp名>`（rsync over ssh）。
 
 ## 実験一覧
