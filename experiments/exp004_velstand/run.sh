@@ -11,7 +11,8 @@ RL_DIR="$EXP_DIR/../../submodules/microduck_rl"
 WALK_CKPT="$(realpath "${WALK_CKPT:-$EXP_DIR/../exp001_baseline_velocity_flat/outputs/2026-10-10_08-15-27_exp001/model_2999.pt}")"
 if [ -z "${STAND_CKPT:-}" ]; then
   RUN="$(ls -d "$EXP_DIR"/../exp003_standup/outputs/*_exp003 2>/dev/null | sort | tail -1)"
-  STAND_CKPT="$(ls "$RUN"/model_*.pt 2>/dev/null | sort -t_ -k2 -n | tail -1)"
+  # ファイル名の番号で数値ソート（パスに "_" を含むので sort -t_ は使えない。sort -V は名前部分だけを比較）
+  STAND_CKPT="$(ls "$RUN"/model_*.pt 2>/dev/null | sort -V | tail -1)"
 fi
 [ -f "${STAND_CKPT:-}" ] || { echo "[exp004] STAND_CKPT が見つかりません（exp003 を先に学習）" >&2; exit 1; }
 STAND_CKPT="$(realpath "$STAND_CKPT")"

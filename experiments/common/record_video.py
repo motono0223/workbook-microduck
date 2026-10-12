@@ -52,12 +52,15 @@ def main() -> None:
                  help="影と床の反射を切る（CPU のソフトウェア描画では大幅に速くなる）")
   p.add_argument("--render-every", type=int, default=1,
                  help="N ステップに 1 回だけ描画（動画は 50/N fps、再生速度は実時間のまま）")
+  p.add_argument("--curriculum-iter", type=int, default=0,
+                 help="この iteration 時点のカリキュラム（初期姿勢・外乱・指令範囲）で録画。0 = play の最易段")
+  p.add_argument("--train-cfg", action="store_true", help="play ではなく学習用の env 設定を使う")
   args = p.parse_args()
 
   configure_torch_backends()
   device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-  env_cfg = load_env_cfg(args.task, play=True)
+  env_cfg = load_env_cfg(args.task, play=not args.train_cfg)
   agent_cfg = load_rl_cfg(args.task)
   env_cfg.scene.num_envs = args.num_envs
   multi = args.num_envs > 1
@@ -98,6 +101,10 @@ def main() -> None:
 
   out = Path(args.out)
   out.parent.mkdir(parents=True, exist_ok=True)
+  if args.curriculum_iter:
+    # カリキュラムは reset 時に common_step_counter を見る → カウンタを進めてから reset
+    env.unwrapped.common_step_counter = args.curriculum_iter * 24
+    env.reset()
   obs = env.get_observations()
   t0 = time.time()
   with imageio.get_writer(out, fps=fps, codec="libx264", quality=8) as writer:

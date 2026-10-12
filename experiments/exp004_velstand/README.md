@@ -29,4 +29,6 @@ docker compose -f docker/compose.yaml run -d --name microduck-rl-exp004 rl bash 
 `outputs/<日時>_exp004/`（exp002 と同じ構成）。
 
 ## 結果
-（未実施）
+保留。exp003 が倒れた状態から起き上がれない（成功率 0%）ため、stand expert として使えない。
+（2026-10-12 に一度起動したが、`run.sh` の自動選択バグで model_750 を expert にしてしまったため 12 iter で停止・破棄。
+バグは `sort -V` に修正済み）

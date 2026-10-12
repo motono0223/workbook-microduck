@@ -23,6 +23,7 @@ Microduck 制御ポリシーの学習試行。1 試行 = 1 ディレクトリ。
   ローカルではコード編集・結果分析・軽い CPU チェックのみ。
 - GPU 学習は基本 vast.ai。ただしユーザーの許可がある場合はローカル Docker（`docker/`）で実行する
   （4096 envs で VRAM 約 6 GB）。初期セットアップは `common/vast_setup.sh`。
+- 起き上がり成功率は `common/eval_standup.py`（初期姿勢別）。
 - 転倒率は `common/eval_falls.py`（N 体をヘッドレスで動かし傾きで判定、`--curriculum-iter` で外乱の段階を指定）。
 - 学習曲線は `common/plot_training.py <run_dir>`（tensorboard ログ → PNG 5 枚 + CSV）。
 - 動画は `common/record_video.py`（ヘッドレス EGL 録画、mjlab の `play --video` は DISPLAY 必須のため）。
@@ -35,5 +36,5 @@ Microduck 制御ポリシーの学習試行。1 試行 = 1 ディレクトリ。
 |---|---|---|---|
 | exp001 | 公式 Velocity-Flat 歩行タスクのベースライン再現 | 完了 | 3000 iter/1h57m で安定歩行。reward 114.6, vel_xy 誤差 0.42 |
 | exp002 | SitStand（座る⇄立つ）を最初から学習 | 完了 | 3000 iter/2h07m。250 iter で座る/立つ獲得。最終外乱下で 20 秒に約 5% が座位で後ろに傾く |
-| exp003 | StandUp（起き上がり）を最初から学習。exp004 の stand expert | 準備済み | - |
-| exp004 | VelStand：exp001 から warm start + exp003 を蒸留 | 準備済み（exp003 待ち） | - |
+| exp003 | StandUp（起き上がり）を最初から学習。exp004 の stand expert | 完了（失敗） | 5000 iter/3h19m。座位からは 99% 起立、うつ伏せ・仰向け・横向きからは 0%（公式記録の失敗パターンと同じ） |
+| exp004 | VelStand：exp001 から warm start + exp003 を蒸留 | 保留 | exp003 が倒れた状態から起き上がれないため未実行 |
