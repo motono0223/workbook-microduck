@@ -1,0 +1,15 @@
+{
+  "task": "Mjlab-SitStand-Flat-MicroDuck",
+  "checkpoint": "/workspace/experiments/exp002_sitstand/outputs/2026-10-12_01-19-41_exp002/model_2999.pt",
+  "num_envs": 1024,
+  "steps": 1000,
+  "curriculum_iter": 3000,
+  "cfg": "play",
+  "fall_deg": 45.0,
+  "ever_fallen_frac": 0.197265625,
+  "fallen_time_frac": 0.0060556640625,
+  "falls_per_robot_minute": 0.720703125,
+  "fall_events": 246,
+  "falls_cmd_vx_mean": 0.6300813008130082,
+  "falls_with_cmd_vx_gt_0.5_frac": 0.6300813008130082
+}

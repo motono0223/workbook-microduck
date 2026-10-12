@@ -27,5 +27,7 @@ docker compose -f docker/compose.yaml -f docker/compose.wsl.yaml run --rm rl \
 ## 生成物
 `outputs/<日時>_exp002/` に model_*.pt / ONNX / tensorboard / params / train.log / plots / videos / summary.md。
 
-## 結果
-（未実施）
+## 結果（2026-10-12, ローカル RTX 3090）
+- 4096 envs × 3000 iter、所要 2h07m。詳細は `outputs/2026-10-12_01-19-41_exp002/summary.md`
+- 約 250 iter で座る/立つを獲得。報酬ピークは 1000 iter（134.0）、外乱の追加で 2999 iter は 120.5
+- 転倒評価（1024 体 × 20 秒）: 外乱なし 0.1%（60°）、学習最終段の外乱下で 5.1%（45°, うち 77% が座位）

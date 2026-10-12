@@ -98,8 +98,10 @@ def plot_panel(ax, steps, values, title, color, smooth, step_like=False) -> None
   ax.margins(x=0.01)
 
 
-def grid_figure(panels, data, title, out, smooth, ncols=3, step_like=False):
+def grid_figure(panels, data, title, out, smooth, ncols=3, step_like=False, drop_all_zero=False):
   panels = [(t, *rest) for t, *rest in panels if t in data]
+  if drop_all_zero:  # タスクで使われない指標（例: SitStand の速度誤差）は常に 0 なので省く
+    panels = [p for p in panels if np.any(data[p[0]][1] != 0)]
   nrows = int(np.ceil(len(panels) / ncols))
   fig, axes = plt.subplots(nrows, ncols, figsize=(4.2 * ncols, 2.9 * nrows), squeeze=False)
   fig.patch.set_facecolor(SURFACE)
@@ -130,7 +132,7 @@ def main() -> None:
   sm = args.smooth
 
   grid_figure(OVERVIEW, data, f"{name} - overview (thin: raw, thick: EMA {sm})",
-              out / "01_overview.png", sm)
+              out / "01_overview.png", sm, drop_all_zero=True)
 
   terms = []
   for tag in sorted(t for t in data if t.startswith("Episode_Reward/")):
