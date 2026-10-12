@@ -38,12 +38,15 @@ def main() -> None:
   p.add_argument("--spacing", type=float, default=None)
   p.add_argument("--settle-s", type=float, default=2.5, help="指令切替からこの秒数以上たったサンプルで判定")
   p.add_argument("--tol", type=float, default=0.015, help="高さの許容誤差 [m]")
+  p.add_argument("--pin", action="append", default=[],
+                 help="カリキュラム項目を固定: 項目名=first|last（複数可, 切り分け評価用）")
   p.add_argument("--log-every", type=int, default=0, help="N ステップごとに姿勢統計を表示")
   p.add_argument("--json", default=None)
   args = p.parse_args()
 
   _, base, env, policy, device = make_env_and_policy(
-    args.task, args.checkpoint, args.num_envs, args.curriculum_iter, args.train_cfg, args.spacing)
+    args.task, args.checkpoint, args.num_envs, args.curriculum_iter, args.train_cfg, args.spacing,
+    pins=args.pin)
   obs, _ = warmup_until_auto_reset(base, env, policy)
   robot = base.scene["robot"]
   head_ids, _ = robot.find_bodies(HEAD_BODIES)
@@ -88,7 +91,7 @@ def main() -> None:
 
   res = {"task": args.task, "checkpoint": args.checkpoint, "num_envs": n, "steps": args.steps,
          "curriculum_iter": args.curriculum_iter, "cfg": "train" if args.train_cfg else "play",
-         "settle_s": args.settle_s, "tol": args.tol, "warmup": "one auto-reset"}
+         "settle_s": args.settle_s, "tol": args.tol, "warmup": "one auto-reset", "pins": args.pin}
   for name, s in stats.items():
     k = max(s["samples"], 1)
     res[name] = {"samples": s["samples"], **{f"{key}_frac": s[key] / k for key in keys[1:]}}

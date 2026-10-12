@@ -17,5 +17,12 @@ docker compose -f docker/compose.yaml run -d --name microduck-rl-exp005 rl bash 
 docker compose -f docker/compose.yaml run -d --name microduck-rl-exp005c rl bash experiments/exp005_standup_seeds/continue.sh <run名>
 ```
 
-## 結果
-（実行中）
+## 結果（2026-10-12〜13, 1000 iter 時点, 修正後の評価スクリプトで測定）
+
+| シード | 座位など（end / ever） | うつ伏せ（ever） | 仰向け | 横向き |
+|---|---|---|---|---|
+| 1 | 44% / 92% | 0% | 0% | 0% |
+| 2 | 41% / 80% | 0% | 0% | 0% |
+| 3 | 50% / 97% | 0.6% | 0% | 0% |
+
+3 シードとも、うつ伏せ・仰向け・横向きからの起き上がりを発見できていない（exp003 の seed 42 と合わせて 4 連敗）。延長は未実施。

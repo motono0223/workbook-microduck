@@ -1,0 +1,38 @@
+{
+  "task": "Mjlab-StandUp-Flat-MicroDuck",
+  "checkpoint": "/workspace/experiments/exp005_standup_seeds/outputs/2026-10-12_09-53-01_exp005_s2/model_999.pt",
+  "num_envs": 2048,
+  "curriculum_iter": 2500,
+  "cfg": "train",
+  "episode_s": 6.0,
+  "upright_deg": 20.0,
+  "min_height": 0.1,
+  "warmup": "one auto-reset",
+  "overall_success": 0.1484375,
+  "groups": {
+    "upright": {
+      "n": 734,
+      "success_at_end": 0.41416892409324646,
+      "ever_stood": 0.7956402897834778,
+      "median_time_to_stand_s": 0.0
+    },
+    "face_down": {
+      "n": 608,
+      "success_at_end": 0.0,
+      "ever_stood": 0.0,
+      "median_time_to_stand_s": null
+    },
+    "face_up": {
+      "n": 348,
+      "success_at_end": 0.0,
+      "ever_stood": 0.0,
+      "median_time_to_stand_s": null
+    },
+    "side": {
+      "n": 358,
+      "success_at_end": 0.0,
+      "ever_stood": 0.0,
+      "median_time_to_stand_s": null
+    }
+  }
+}

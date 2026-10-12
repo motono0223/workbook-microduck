@@ -21,13 +21,33 @@ from mjlab.utils.torch import configure_torch_backends
 NUM_STEPS_PER_ENV = 24  # 1 iteration = 24 env step（カリキュラムの step 換算）
 
 
+def pin_curriculum(env_cfg, pins: list[str]) -> None:
+  """カリキュラム項目を最初/最後の段階に固定する。pins は "項目名=first" / "項目名=last" のリスト。
+
+  段階リスト（*_stages）を 1 要素（step 0）に置き換えるので、カウンタに関係なくその値が使われる。
+  切り分け評価用（例: 最終段の条件のまま押し外乱だけ最易段に戻す）。
+  """
+  for pin in pins:
+    name, which = pin.split("=")
+    params = env_cfg.curriculum[name].params
+    keys = [k for k, v in params.items() if k.endswith("_stages")]
+    if len(keys) != 1 or which not in ("first", "last"):
+      raise ValueError(f"cannot pin {pin}: stages={keys}")
+    stage = dict(params[keys[0]][0 if which == "first" else -1])
+    stage["step"] = 0
+    params[keys[0]] = [stage]
+
+
 def make_env_and_policy(task: str, checkpoint: str, num_envs: int, curriculum_iter: int = 0,
-                        train_cfg: bool = False, spacing: float | None = None, render: bool = False):
+                        train_cfg: bool = False, spacing: float | None = None, render: bool = False,
+                        pins: list[str] | None = None):
   configure_torch_backends()
   device = "cuda:0" if torch.cuda.is_available() else "cpu"
   env_cfg = load_env_cfg(task, play=not train_cfg)
   agent_cfg = load_rl_cfg(task)
   env_cfg.scene.num_envs = num_envs
+  if pins:
+    pin_curriculum(env_cfg, pins)
   if spacing is not None:
     env_cfg.scene.env_spacing = spacing
     if env_cfg.scene.terrain is not None:
