@@ -10,7 +10,8 @@ Microduck 制御ポリシーの学習試行。1 試行 = 1 ディレクトリ。
   - もしくは独自タスク cfg / スクリプト
 - 各実験に必ず置くもの:
   - `README.md` … 目的・仮説・変更点・実行コマンド・結果・考察
-  - `run.sh` … vast.ai 上でそのまま実行できるスクリプト
+  - `run.sh` … そのまま実行できる学習スクリプト（中身は `common/train.sh` の呼び出し）
+  - `make_video.sh` … 動画書き出し（`common/make_video.sh` の呼び出し）
 - 学習 1 回分の出力（チェックポイント・ONNX・train.log・プロット・動画・summary.md）は
   run ディレクトリ `outputs/<日時>_<run名>/` にまとめ、git にもコミットする。
   実験をまたぐ比較図が必要になったら、run の外に比較用ディレクトリを別に作る
@@ -32,3 +33,6 @@ Microduck 制御ポリシーの学習試行。1 試行 = 1 ディレクトリ。
 | ID | 内容 | 状態 | 結果 |
 |---|---|---|---|
 | exp001 | 公式 Velocity-Flat 歩行タスクのベースライン再現 | 完了 | 3000 iter/1h57m で安定歩行。reward 114.6, vel_xy 誤差 0.42 |
+| exp002 | SitStand（座る⇄立つ）を最初から学習 | 準備済み | - |
+| exp003 | StandUp（起き上がり）を最初から学習。exp004 の stand expert | 準備済み | - |
+| exp004 | VelStand：exp001 から warm start + exp003 を蒸留 | 準備済み（exp003 待ち） | - |
