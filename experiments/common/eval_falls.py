@@ -3,6 +3,7 @@
 動画 1 本では偶然か傾向か判断できないため、N 体を T ステップ動かし、胴体の傾きから転倒を数える。
 カリキュラムは play 設定だと step 0（最も易しい段階）から始まるので、--curriculum-iter で
 学習の任意の段階（例: 最終段）の外乱・指令範囲を再現できる。
+測定は全 env が一度自動リセットされた後から（evalutil 参照。手動リセット直後は挙動が学習時と異なる）。
 
 使い方（microduck_rl ディレクトリで）:
   uv run python ../../experiments/common/eval_falls.py --task Mjlab-SitStand-Flat-MicroDuck \
@@ -14,16 +15,10 @@ from __future__ import annotations
 import argparse
 import json
 import math
-from dataclasses import asdict
 
 import torch
 
-from mjlab.envs import ManagerBasedRlEnv
-from mjlab.rl import MjlabOnPolicyRunner, RslRlVecEnvWrapper
-from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls
-from mjlab.utils.torch import configure_torch_backends
-
-NUM_STEPS_PER_ENV = 24  # 1 iteration = 24 env step（カリキュラムの step 換算）
+from evalutil import make_env_and_policy, warmup_until_auto_reset
 
 
 def main() -> None:
@@ -40,24 +35,9 @@ def main() -> None:
   p.add_argument("--json", default=None, help="結果を JSON で保存")
   args = p.parse_args()
 
-  configure_torch_backends()
-  device = "cuda:0" if torch.cuda.is_available() else "cpu"
-  env_cfg = load_env_cfg(args.task, play=not args.train_cfg)
-  agent_cfg = load_rl_cfg(args.task)
-  env_cfg.scene.num_envs = args.num_envs
-
-  env = ManagerBasedRlEnv(cfg=env_cfg, device=device)
-  base = env
-  env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
-  runner_cls = load_runner_cls(args.task) or MjlabOnPolicyRunner
-  runner = runner_cls(env, asdict(agent_cfg), device=device)
-  runner.load(args.checkpoint, load_cfg={"actor": True}, strict=True, map_location=device)
-  policy = runner.get_inference_policy(device=device)
-
-  # カリキュラムは reset 時に common_step_counter を見て段階を決める → カウンタを進めてから全 env を reset
-  base.common_step_counter = args.curriculum_iter * NUM_STEPS_PER_ENV
-  env.reset()
-  obs = env.get_observations()
+  _, base, env, policy, device = make_env_and_policy(
+    args.task, args.checkpoint, args.num_envs, args.curriculum_iter, args.train_cfg)
+  obs, _ = warmup_until_auto_reset(base, env, policy)
 
   robot = base.scene["robot"]
   cos_fall = math.cos(math.radians(args.fall_deg))
@@ -87,7 +67,7 @@ def main() -> None:
   res = {
     "task": args.task, "checkpoint": args.checkpoint, "num_envs": n, "steps": args.steps,
     "curriculum_iter": args.curriculum_iter, "cfg": "train" if args.train_cfg else "play",
-    "fall_deg": args.fall_deg,
+    "fall_deg": args.fall_deg, "warmup": "one auto-reset",
     "ever_fallen_frac": float(ever_fallen.float().mean()),
     "fallen_time_frac": fallen_steps / (n * args.steps),
     "falls_per_robot_minute": fall_events / minutes,

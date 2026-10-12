@@ -1,6 +1,7 @@
 """起き上がり方策の成功率を初期姿勢別にヘッドレス評価する（描画なし）。
 
-N 体を一斉に reset し（初期姿勢はタスクの reset イベントが決める）、1 エピソード分動かして、
+N 体を 1 エピソード動かして捨て（手動リセット直後は挙動が学習時と異なるため）、全 env が同時に自動リセットされた
+次のエピソードを測る（初期姿勢はタスクの reset イベントが決める）。1 エピソード分動かして、
 終了直前に「立てているか」（胴体の傾き < --upright-deg かつ 胴体高さ > --min-height）を判定する。
 初期姿勢は reset 直後の重力方向から分類する:
   upright   : 傾き < 45°（座位など）
@@ -18,16 +19,10 @@ from __future__ import annotations
 import argparse
 import json
 import math
-from dataclasses import asdict
 
 import torch
 
-from mjlab.envs import ManagerBasedRlEnv
-from mjlab.rl import MjlabOnPolicyRunner, RslRlVecEnvWrapper
-from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls
-from mjlab.utils.torch import configure_torch_backends
-
-NUM_STEPS_PER_ENV = 24
+from evalutil import make_env_and_policy, warmup_until_auto_reset
 
 
 def main() -> None:
@@ -43,25 +38,15 @@ def main() -> None:
   p.add_argument("--json", default=None)
   args = p.parse_args()
 
-  configure_torch_backends()
-  device = "cuda:0" if torch.cuda.is_available() else "cpu"
-  env_cfg = load_env_cfg(args.task, play=not args.train_cfg)
-  agent_cfg = load_rl_cfg(args.task)
-  env_cfg.scene.num_envs = args.num_envs
-
-  base = ManagerBasedRlEnv(cfg=env_cfg, device=device)
-  env = RslRlVecEnvWrapper(base, clip_actions=agent_cfg.clip_actions)
-  runner_cls = load_runner_cls(args.task) or MjlabOnPolicyRunner
-  runner = runner_cls(env, asdict(agent_cfg), device=device)
-  runner.load(args.checkpoint, load_cfg={"actor": True}, strict=True, map_location=device)
-  policy = runner.get_inference_policy(device=device)
-
-  base.common_step_counter = args.curriculum_iter * NUM_STEPS_PER_ENV
-  env.reset()
-  obs = env.get_observations()
+  env_cfg, base, env, policy, device = make_env_and_policy(
+    args.task, args.checkpoint, args.num_envs, args.curriculum_iter, args.train_cfg)
+  # 1 エピソード捨てる。全 env が同時に時間切れになるので、戻った obs は全 env の新エピソード開始時点
+  obs, dones = warmup_until_auto_reset(base, env, policy)
+  if not bool(dones.all()):
+    raise RuntimeError("全 env が同時にリセットされていない（終了条件のあるタスクには未対応）")
   robot = base.scene["robot"]
 
-  # 初期姿勢の分類（reset 直後）
+  # 初期姿勢の分類（自動リセット直後）
   g = robot.data.projected_gravity_b.clone()
   tilt0 = torch.rad2deg(torch.acos((-g[:, 2]).clamp(-1, 1)))
   lying = tilt0 >= 45.0
@@ -84,7 +69,7 @@ def main() -> None:
     "task": args.task, "checkpoint": args.checkpoint, "num_envs": args.num_envs,
     "curriculum_iter": args.curriculum_iter, "cfg": "train" if args.train_cfg else "play",
     "episode_s": env_cfg.episode_length_s, "upright_deg": args.upright_deg, "min_height": args.min_height,
-    "overall_success": float(final_up.float().mean()),
+    "warmup": "one auto-reset", "overall_success": float(final_up.float().mean()),
     "groups": {},
   }
   for name, m in groups.items():

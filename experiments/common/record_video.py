@@ -52,9 +52,12 @@ def main() -> None:
                  help="影と床の反射を切る（CPU のソフトウェア描画では大幅に速くなる）")
   p.add_argument("--render-every", type=int, default=1,
                  help="N ステップに 1 回だけ描画（動画は 50/N fps、再生速度は実時間のまま）")
-  p.add_argument("--curriculum-iter", type=int, default=0,
-                 help="この iteration 時点のカリキュラム（初期姿勢・外乱・指令範囲）で録画。0 = play の最易段")
+  p.add_argument("--curriculum-iter", type=int, default=None,
+                 help="この iteration 時点のカリキュラム（初期姿勢・外乱・指令範囲）で録画。"
+                      "省略時はチェックポイントに保存された段階（= 学習終了時）。0 = 最易段")
   p.add_argument("--train-cfg", action="store_true", help="play ではなく学習用の env 設定を使う")
+  p.add_argument("--log-pose-every", type=int, default=0,
+                 help="N ステップごとに全個体の姿勢統計（傾き>60° の数, 胴体高さ, 頭部高さ）を表示（評価スクリプトとの照合用）")
   args = p.parse_args()
 
   configure_torch_backends()
@@ -101,18 +104,28 @@ def main() -> None:
 
   out = Path(args.out)
   out.parent.mkdir(parents=True, exist_ok=True)
-  if args.curriculum_iter:
-    # カリキュラムは reset 時に common_step_counter を見る → カウンタを進めてから reset
+  # runner.load() はチェックポイントの common_step_counter を書き戻すが、ラッパー生成時の初回 reset は
+  # それより前（カウンタ 0 = 最易段）に済んでいる。そのままだと最初のエピソードだけ最易段になるので、
+  # 段階を確定させてから全 env を reset し、動画全体を 1 つの段階にそろえる。
+  if args.curriculum_iter is not None:
     env.unwrapped.common_step_counter = args.curriculum_iter * 24
-    env.reset()
+  env.reset()
   obs = env.get_observations()
   t0 = time.time()
   with imageio.get_writer(out, fps=fps, codec="libx264", quality=8) as writer:
     for i in range(args.steps):
       with torch.inference_mode():
         obs, _, _, _ = env.step(policy(obs))
-      if i % args.render_every == 0:
+      if i % args.render_every == 0 and not os.environ.get("RV_SKIP_RENDER"):
         writer.append_data(env.unwrapped.render())
+      if args.log_pose_every and i % args.log_pose_every == 0:
+        r = env.unwrapped.scene["robot"]
+        tilt = torch.rad2deg(torch.acos((-r.data.projected_gravity_b[:, 2]).clamp(-1, 1)))
+        z = r.data.root_link_pos_w[:, 2]
+        cmd = env.unwrapped.command_manager.get_command("twist")[:, 0] if "twist" in env.unwrapped.command_manager.active_terms else None
+        print(f"[pose] step={i} t={i * env.unwrapped.step_dt:.1f}s tilt>60:{int((tilt > 60).sum())} tilt>30:{int((tilt > 30).sum())}"
+              f" z<0.05:{int((z < 0.05).sum())} z_med={float(z.median()):.3f} tilt_max={float(tilt.max()):.0f}"
+              + (f" sit_cmd:{int((cmd > 0.5).sum())}" if cmd is not None else "") + f" / {z.numel()}")
   env.close()
   dt = time.time() - t0
   print(f"[record_video] wrote {out} ({args.steps} steps @ {fps} fps, {dt / args.steps * args.render_every:.2f} s/frame)")
