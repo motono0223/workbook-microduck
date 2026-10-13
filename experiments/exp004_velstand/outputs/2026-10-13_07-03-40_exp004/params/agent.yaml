@@ -1,0 +1,99 @@
+seed: 42
+num_steps_per_env: 24
+max_iterations: 3000
+obs_groups:
+  actor: !!python/tuple
+  - actor
+  critic: !!python/tuple
+  - critic
+save_interval: 250
+experiment_name: velstand
+run_name: exp004
+logger: tensorboard
+wandb_project: mjlab_microduck
+wandb_tags: !!python/tuple []
+resume: true
+load_run: warmstart_walk
+load_checkpoint: model_2999.pt
+clip_actions: null
+upload_model: true
+class_name: OnPolicyRunner
+actor:
+  hidden_dims: !!python/tuple
+  - 512
+  - 256
+  - 128
+  activation: elu
+  obs_normalization: true
+  cnn_cfg: null
+  distribution_cfg:
+    class_name: GaussianDistribution
+    init_std: 1.0
+    std_type: scalar
+  rnn_type: null
+  rnn_hidden_dim: 256
+  rnn_num_layers: 1
+  class_name: MLPModel
+critic:
+  hidden_dims: !!python/tuple
+  - 512
+  - 256
+  - 128
+  activation: elu
+  obs_normalization: true
+  cnn_cfg: null
+  distribution_cfg: null
+  rnn_type: null
+  rnn_hidden_dim: 256
+  rnn_num_layers: 1
+  class_name: MLPModel
+algorithm:
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  learning_rate: 0.001
+  schedule: adaptive
+  gamma: 0.99
+  lam: 0.95
+  entropy_coef: 0.01
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+  value_loss_coef: 1.0
+  use_clipped_value_loss: true
+  clip_param: 0.2
+  normalize_advantage_per_mini_batch: false
+  optimizer: adam
+  share_cnn_encoders: false
+  class_name: mjlab_microduck.tasks.distill.PpoWithExpertBc
+  symmetry_cfg: null
+  bc_cfg:
+    wandb_run_path: null
+    checkpoint_name: model_9750.pt
+    checkpoint_path: /workspace/experiments/exp004_velstand/teachers/alpha_stand.pt
+    coef: 1.0
+    learning_rate: 0.0003
+    gate_tilt_deg: 35.0
+    epochs: 5
+    mini_batches: 4
+    min_mini_batch: 512
+    min_samples: 64
+    gravity_slice: !!python/tuple
+    - 3
+    - 6
+    twist_slice: !!python/tuple
+    - 48
+    - 51
+    anchor_wandb_run_path: null
+    anchor_checkpoint_name: model_3750.pt
+    anchor_checkpoint_path: /workspace/experiments/exp001_baseline_velocity_flat/outputs/2026-10-10_08-15-27_exp001/model_2999.pt
+    anchor_coef: 1.0
+    anchor_tilt_deg: 25.0
+    body_slice: !!python/tuple
+    - 55
+    - 61
+    unanchor_turn_in_place: false
+    body_active_axes: !!python/tuple
+    - 2
+    - 3
+    - 4
+    body_no_teacher_axes: !!python/tuple
+    - 2
