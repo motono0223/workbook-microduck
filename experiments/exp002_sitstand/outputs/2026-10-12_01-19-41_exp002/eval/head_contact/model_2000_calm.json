@@ -1,0 +1,13 @@
+{
+  "checkpoint": "/workspace/experiments/exp002_sitstand/outputs/2026-10-12_01-19-41_exp002/model_2000.pt",
+  "num_envs": 64,
+  "steps": 1200,
+  "curriculum_iter": 0,
+  "head_zero_prob": 1.0,
+  "sit_schedule": null,
+  "head_geoms": 25,
+  "envs_with_head_floor_contact": 51,
+  "head_contact_time_frac_while_sit_cmd": 0.008529119355345088,
+  "head_contact_time_frac_while_stand_cmd": 0.0,
+  "max_head_contact_normal_force_N": 67.09229719746365
+}
