@@ -18,5 +18,7 @@ exp002 の切り分け（summary 4.4）で、**頭部指令がほぼゼロだと
 docker compose -f docker/compose.yaml run -d --name microduck-rl-exp006 rl bash experiments/exp006_sitstand_zero_head/run.sh
 ```
 
-## 結果
-（実行中）
+## 結果（2026-10-13）
+- 3000 iter。詳細は `outputs/2026-10-13_04-34-48_exp006/summary.md`
+- 静かな条件（外乱なし・頭静止）の「座る」: exp006 は 2500〜2999 iter で 97〜99% と安定（exp002 は同区間 46〜67%）
+- 外乱下の成績は exp002 とほぼ同じ（座る 約 96%, 立つ 約 81%）。最良候補は model_2999 / model_2500
