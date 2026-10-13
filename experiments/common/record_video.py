@@ -56,6 +56,10 @@ def main() -> None:
                  help="この iteration 時点のカリキュラム（初期姿勢・外乱・指令範囲）で録画。"
                       "省略時はチェックポイントに保存された段階（= 学習終了時）。0 = 最易段")
   p.add_argument("--train-cfg", action="store_true", help="play ではなく学習用の env 設定を使う")
+  p.add_argument("--sit-schedule", default=None,
+                 help="SitStand 用: 姿勢指令の時間割 例 'stand:2,sit:5,stand:5'（秒）。指定時はランダム再抽選を止めて上書き")
+  p.add_argument("--head-still", action="store_true", help="頭部指令をゼロに固定（再抽選を止める）")
+  p.add_argument("--episode-s", type=float, default=None, help="エピソード長を上書き（録画途中の時間切れリセットを避ける）")
   p.add_argument("--log-pose-every", type=int, default=0,
                  help="N ステップごとに全個体の姿勢統計（傾き>60° の数, 胴体高さ, 頭部高さ）を表示（評価スクリプトとの照合用）")
   args = p.parse_args()
@@ -66,6 +70,8 @@ def main() -> None:
   env_cfg = load_env_cfg(args.task, play=not args.train_cfg)
   agent_cfg = load_rl_cfg(args.task)
   env_cfg.scene.num_envs = args.num_envs
+  if args.episode_s is not None:
+    env_cfg.episode_length_s = args.episode_s
   multi = args.num_envs > 1
   if multi:
     env_cfg.scene.env_spacing = args.spacing
@@ -110,12 +116,36 @@ def main() -> None:
   if args.curriculum_iter is not None:
     env.unwrapped.common_step_counter = args.curriculum_iter * 24
   env.reset()
+  schedule = []
+  if args.sit_schedule:
+    for item in args.sit_schedule.split(","):
+      name, sec = item.split(":")
+      schedule += [1.0 if name == "sit" else 0.0] * int(round(float(sec) / env.unwrapped.step_dt))
+
+  def override_commands(step: int) -> None:
+    # 再抽選を止める（time_left を大きく）うえで指令を書き込む
+    cm = env.unwrapped.command_manager
+    if schedule:
+      tw = cm.get_term("twist")
+      tw.time_left[:] = 1e9
+      tw.vel_command_b[:] = 0.0
+      tw.vel_command_b[:, 0] = schedule[min(step, len(schedule) - 1)]
+    if args.head_still:
+      hp = cm.get_term("head_pose")
+      hp.time_left[:] = 1e9
+      hp._command[:] = 0.0
+
+  if schedule or args.head_still:
+    override_commands(0)
   obs = env.get_observations()
   t0 = time.time()
   with imageio.get_writer(out, fps=fps, codec="libx264", quality=8) as writer:
     for i in range(args.steps):
       with torch.inference_mode():
         obs, _, _, _ = env.step(policy(obs))
+        if schedule or args.head_still:
+          override_commands(i + 1)
+          obs = env.get_observations()  # 上書きした指令を次の行動の観測に反映
       if i % args.render_every == 0 and not os.environ.get("RV_SKIP_RENDER"):
         writer.append_data(env.unwrapped.render())
       if args.log_pose_every and i % args.log_pose_every == 0:
