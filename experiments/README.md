@@ -39,5 +39,6 @@ Microduck 制御ポリシーの学習試行。1 試行 = 1 ディレクトリ。
 | exp001 | 公式 Velocity-Flat 歩行タスクのベースライン再現 | 完了 | 3000 iter/1h57m で安定歩行。reward 114.6, vel_xy 誤差 0.42 |
 | exp002 | SitStand（座る⇄立つ）を最初から学習 | 完了 | 3000 iter/2h07m。最良 model_2250（座る 93% / 立つ 89%）。外乱なしでは座れ指令の約 1/3 で座らない |
 | exp003 | StandUp（起き上がり）を最初から学習。exp004 の stand expert | 完了（失敗） | 5000 iter/3h19m。座位からは 99% 起立、うつ伏せ・仰向け・横向きからは 0%（公式記録の失敗パターンと同じ） |
-| exp004 | VelStand：exp001 から warm start + exp003 を蒸留 | 保留 | exp003 が倒れた状態から起き上がれないため未実行 |
+| exp004 | VelStand：exp001 から warm start + stand expert を蒸留 | 実行待ち | 自前 StandUp が失敗したため公式 alpha_stand（本環境で 100% 起立を確認）を expert に変更 |
 | exp005 | StandUp のシード探索（seed 1/2/3 × 1000 iter → 起き上がれた run を延長） | 完了（全シード失敗） | 3 シードとも倒れた状態から 0〜0.6%。exp003 と合わせ 4 連敗 |
+| exp006 | SitStand + 頭部指令のゼロ指令バケット 30%（頭を静止したまま座れるように） | 実行中 | - |

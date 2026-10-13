@@ -2,3 +2,4 @@ __pycache__/
 .venv/
 chain_exp*.log
 experiments/*/outputs/train.*.log
+experiments/exp004_velstand/teachers/

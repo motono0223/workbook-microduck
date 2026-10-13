@@ -40,7 +40,7 @@ def pin_curriculum(env_cfg, pins: list[str]) -> None:
 
 def make_env_and_policy(task: str, checkpoint: str, num_envs: int, curriculum_iter: int = 0,
                         train_cfg: bool = False, spacing: float | None = None, render: bool = False,
-                        pins: list[str] | None = None):
+                        pins: list[str] | None = None, cfg_hook=None):
   configure_torch_backends()
   device = "cuda:0" if torch.cuda.is_available() else "cpu"
   env_cfg = load_env_cfg(task, play=not train_cfg)
@@ -48,6 +48,8 @@ def make_env_and_policy(task: str, checkpoint: str, num_envs: int, curriculum_it
   env_cfg.scene.num_envs = num_envs
   if pins:
     pin_curriculum(env_cfg, pins)
+  if cfg_hook is not None:
+    cfg_hook(env_cfg)
   if spacing is not None:
     env_cfg.scene.env_spacing = spacing
     if env_cfg.scene.terrain is not None:

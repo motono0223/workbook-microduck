@@ -28,7 +28,24 @@ docker compose -f docker/compose.yaml run -d --name microduck-rl-exp004 rl bash 
 ## 生成物
 `outputs/<日時>_exp004/`（exp002 と同じ構成）。
 
+## stand expert の変更（2026-10-13）
+自前の StandUp（exp003 / exp005, 4 シード）が倒れた状態からの起き上がりを発見できなかったため、
+**公式 HF Hub の `alpha_stand.onnx`**（`pollen-robotics/microduck-policies`, Apache-2.0。公式 VelStand の stand teacher と同じもの）を
+`convert_onnx_teacher.py` で rsl_rl チェックポイント形式に変換して使う。
+- 変換の検証: ONNX と PyTorch の出力差 最大 9.5e-6
+- 本環境での評価（`eval_standup.py`, 2048 体）: うつ伏せ・仰向け・横向き・座位すべて 100% 起立（中央値 0.2〜0.5 秒）
+- 取得と変換（`teachers/` は git 管理外）:
+  ```bash
+  python -c "from huggingface_hub import hf_hub_download as d; import shutil; shutil.copy(d('pollen-robotics/microduck-policies','alpha_stand.onnx'), 'experiments/exp004_velstand/teachers/alpha_stand.onnx')"
+  # microduck_rl ディレクトリで
+  uv run python ../../experiments/exp004_velstand/convert_onnx_teacher.py --onnx ../../experiments/exp004_velstand/teachers/alpha_stand.onnx \
+    --template ../../experiments/exp003_standup/outputs/2026-10-12_03-30-00_exp003/model_4999.pt --out ../../experiments/exp004_velstand/teachers/alpha_stand.pt
+  ```
+- 実行: `STAND_CKPT=experiments/exp004_velstand/teachers/alpha_stand.pt` を渡して `run.sh`
+
 ## 結果
-保留。exp003 が倒れた状態から起き上がれない（成功率 0%）ため、stand expert として使えない。
+（exp006 の学習後に実行予定）
+
+以前の経緯: 保留。exp003 が倒れた状態から起き上がれない（成功率 0%）ため、stand expert として使えない。
 （2026-10-12 に一度起動したが、`run.sh` の自動選択バグで model_750 を expert にしてしまったため 12 iter で停止・破棄。
 バグは `sort -V` に修正済み）

@@ -27,6 +27,14 @@ HEAD_BODIES = ("yaw_roll_motion", "jaw_soft")  # 頭部（座位の基準姿勢�
 HEAD_DOWN_Z = 0.07
 
 
+def _head_zero_hook(prob):
+  if prob is None:
+    return None
+  def hook(env_cfg):
+    env_cfg.commands["head_pose"].zero_command_prob = prob
+  return hook
+
+
 def main() -> None:
   p = argparse.ArgumentParser()
   p.add_argument("--task", default="Mjlab-SitStand-Flat-MicroDuck")
@@ -40,13 +48,15 @@ def main() -> None:
   p.add_argument("--tol", type=float, default=0.015, help="高さの許容誤差 [m]")
   p.add_argument("--pin", action="append", default=[],
                  help="カリキュラム項目を固定: 項目名=first|last（複数可, 切り分け評価用）")
+  p.add_argument("--head-zero-prob", type=float, default=None,
+                 help="頭部指令をゼロにする確率を上書き（1.0 = 頭を常に静止させたまま評価）")
   p.add_argument("--log-every", type=int, default=0, help="N ステップごとに姿勢統計を表示")
   p.add_argument("--json", default=None)
   args = p.parse_args()
 
   _, base, env, policy, device = make_env_and_policy(
     args.task, args.checkpoint, args.num_envs, args.curriculum_iter, args.train_cfg, args.spacing,
-    pins=args.pin)
+    pins=args.pin, cfg_hook=_head_zero_hook(args.head_zero_prob))
   obs, _ = warmup_until_auto_reset(base, env, policy)
   robot = base.scene["robot"]
   head_ids, _ = robot.find_bodies(HEAD_BODIES)
@@ -91,7 +101,7 @@ def main() -> None:
 
   res = {"task": args.task, "checkpoint": args.checkpoint, "num_envs": n, "steps": args.steps,
          "curriculum_iter": args.curriculum_iter, "cfg": "train" if args.train_cfg else "play",
-         "settle_s": args.settle_s, "tol": args.tol, "warmup": "one auto-reset", "pins": args.pin}
+         "settle_s": args.settle_s, "tol": args.tol, "warmup": "one auto-reset", "pins": args.pin, "head_zero_prob": args.head_zero_prob}
   for name, s in stats.items():
     k = max(s["samples"], 1)
     res[name] = {"samples": s["samples"], **{f"{key}_frac": s[key] / k for key in keys[1:]}}
