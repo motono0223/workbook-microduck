@@ -35,11 +35,21 @@ def main() -> None:
   p.add_argument("--train-cfg", action="store_true", help="play ではなく学習用の env 設定を使う")
   p.add_argument("--upright-deg", type=float, default=20.0)
   p.add_argument("--min-height", type=float, default=0.10, help="立位とみなす胴体高さ [m]（立位 ≈ 0.115〜0.12）")
+  p.add_argument("--all-prone", action="store_true",
+                 help="VelStand 用: 全 env を寝た姿勢（うつ伏せ/仰向け/横向き）から開始し、時間切れ以外の終了を外す")
   p.add_argument("--json", default=None)
   args = p.parse_args()
 
+  def all_prone(cfg):
+    stage = {"step": 0, "params": {"prone_prob": 1.0, "face_down_prob": 0.5, "side_prob": 0.5, "crouch_prob": 0.0}}
+    cfg.curriculum["prone_init_prob"].params["param_stages"] = [stage]
+    for name in list(cfg.terminations):
+      if name != "time_out":
+        del cfg.terminations[name]
+
   env_cfg, base, env, policy, device = make_env_and_policy(
-    args.task, args.checkpoint, args.num_envs, args.curriculum_iter, args.train_cfg)
+    args.task, args.checkpoint, args.num_envs, args.curriculum_iter, args.train_cfg,
+    cfg_hook=all_prone if args.all_prone else None)
   # 1 エピソード捨てる。全 env が同時に時間切れになるので、戻った obs は全 env の新エピソード開始時点
   obs, dones = warmup_until_auto_reset(base, env, policy)
   if not bool(dones.all()):
@@ -69,7 +79,7 @@ def main() -> None:
     "task": args.task, "checkpoint": args.checkpoint, "num_envs": args.num_envs,
     "curriculum_iter": args.curriculum_iter, "cfg": "train" if args.train_cfg else "play",
     "episode_s": env_cfg.episode_length_s, "upright_deg": args.upright_deg, "min_height": args.min_height,
-    "warmup": "one auto-reset", "overall_success": float(final_up.float().mean()),
+    "warmup": "one auto-reset", "all_prone": args.all_prone, "overall_success": float(final_up.float().mean()),
     "groups": {},
   }
   for name, m in groups.items():

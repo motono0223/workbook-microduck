@@ -1,0 +1,33 @@
+{
+  "task": "Mjlab-VelStand-Flat-MicroDuck",
+  "checkpoint": "/workspace/experiments/exp004_velstand/outputs/2026-10-13_07-03-40_exp004/model_2999.pt",
+  "num_envs": 512,
+  "curriculum_iter": 3000,
+  "cfg": "train",
+  "episode_s": 20.0,
+  "upright_deg": 20.0,
+  "min_height": 0.1,
+  "warmup": "one auto-reset",
+  "all_prone": true,
+  "overall_success": 0.7578125,
+  "groups": {
+    "face_down": {
+      "n": 130,
+      "success_at_end": 0.7615384459495544,
+      "ever_stood": 1.0,
+      "median_time_to_stand_s": 0.3199999928474426
+    },
+    "face_up": {
+      "n": 120,
+      "success_at_end": 0.7750000357627869,
+      "ever_stood": 1.0,
+      "median_time_to_stand_s": 0.6599999666213989
+    },
+    "side": {
+      "n": 262,
+      "success_at_end": 0.7480915784835815,
+      "ever_stood": 0.9961832165718079,
+      "median_time_to_stand_s": 0.7400000095367432
+    }
+  }
+}

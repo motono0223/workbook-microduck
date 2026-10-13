@@ -1,0 +1,29 @@
+{
+  "task": "Mjlab-SitStand-Flat-MicroDuck",
+  "checkpoint": "/workspace/experiments/exp007_sitstand_head_impact/outputs/2026-10-13_15-21-16_exp007/model_1000.pt",
+  "num_envs": 512,
+  "steps": 1200,
+  "curriculum_iter": 0,
+  "cfg": "train",
+  "settle_s": 2.5,
+  "tol": 0.015,
+  "warmup": "one auto-reset",
+  "pins": [],
+  "head_zero_prob": 1.0,
+  "sit": {
+    "samples": 196206,
+    "ok_frac": 0.9910655127773871,
+    "leaned_frac": 0.0,
+    "lying_frac": 0.0,
+    "head_down_frac": 0.0,
+    "wrong_frac": 0.008776490015595854
+  },
+  "stand": {
+    "samples": 186790,
+    "ok_frac": 0.99062048289523,
+    "leaned_frac": 0.009379517104770063,
+    "lying_frac": 0.0,
+    "head_down_frac": 0.0,
+    "wrong_frac": 0.0
+  }
+}

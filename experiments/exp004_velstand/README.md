@@ -43,8 +43,10 @@ docker compose -f docker/compose.yaml run -d --name microduck-rl-exp004 rl bash 
   ```
 - 実行: `STAND_CKPT=experiments/exp004_velstand/teachers/alpha_stand.pt` を渡して `run.sh`
 
-## 結果
-（exp006 の学習後に実行予定）
+## 結果（2026-10-14）
+- 3000 iter。詳細は `outputs/2026-10-13_07-03-40_exp004/summary.md`
+- 寝た姿勢（うつ伏せ/仰向け/横向き）から 98〜100% が中央値 0.3〜0.8 秒で起き上がる
+- 歩行中の転倒は exp001（歩行専用）の約 3 倍（20 秒で 17.6% vs 5.3%）
 
 以前の経緯: 保留。exp003 が倒れた状態から起き上がれない（成功率 0%）ため、stand expert として使えない。
 （2026-10-12 に一度起動したが、`run.sh` の自動選択バグで model_750 を expert にしてしまったため 12 iter で停止・破棄。

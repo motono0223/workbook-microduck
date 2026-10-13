@@ -1,0 +1,13 @@
+{
+  "checkpoint": "/workspace/experiments/exp007_sitstand_head_impact/outputs/2026-10-13_15-21-16_exp007/model_2999.pt",
+  "num_envs": 32,
+  "steps": 3000,
+  "curriculum_iter": 0,
+  "head_zero_prob": 1.0,
+  "sit_schedule": "stand:2,sit:4,stand:2,sit:4,stand:2,sit:4,stand:2,sit:4,stand:2,sit:4,stand:2,sit:4,stand:2,sit:4,stand:2,sit:4,stand:2,sit:4,stand:2,sit:4",
+  "head_geoms": 25,
+  "envs_with_head_floor_contact": 1,
+  "head_contact_time_frac_while_sit_cmd": 0.000984375,
+  "head_contact_time_frac_while_stand_cmd": 0.00140625,
+  "max_head_contact_normal_force_N": 55.027399022808595
+}

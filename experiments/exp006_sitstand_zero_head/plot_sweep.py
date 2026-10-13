@@ -14,8 +14,9 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 RUNS = {
   "exp002 (baseline)": "exp002_sitstand/outputs/2026-10-12_01-19-41_exp002",
   "exp006 (zero head cmd 30%)": "exp006_sitstand_zero_head/outputs/2026-10-13_04-34-48_exp006",
+  "exp007 (+ head impact penalty)": "exp007_sitstand_head_impact/outputs/2026-10-13_15-21-16_exp007",
 }
-COLORS = {"exp002 (baseline)": "#2a78d6", "exp006 (zero head cmd 30%)": "#eb6834"}
+COLORS = {"exp002 (baseline)": "#2a78d6", "exp006 (zero head cmd 30%)": "#eb6834", "exp007 (+ head impact penalty)": "#1baf7a"}
 SURFACE, TEXT, TEXT_2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
 PANELS = [("calm", "sit", "Sit success - no perturbation, head still"),
           ("final", "sit", "Sit success - final-stage perturbations"),
@@ -39,7 +40,7 @@ for ax, (cond, key, title) in zip(axes, PANELS):
     xs, ys = zip(*pts)
     ax.plot(xs, ys, color=COLORS[name], linewidth=2, marker="o", markersize=6,
             markeredgecolor=SURFACE, markeredgewidth=1.5, label=name)
-    ax.annotate(f"{ys[-1]:.0f}%", (xs[-1], ys[-1]), xytext=(6, -7 if si == 0 else 7), textcoords="offset points",
+    ax.annotate(f"{ys[-1]:.0f}%", (xs[-1], ys[-1]), xytext=(6, (-9, 0, 9)[si]), textcoords="offset points",
                 va="center", fontsize=8, color=TEXT_2)
   ax.set_title(title, fontsize=10, color=TEXT, loc="left")
   ax.set_xlabel("checkpoint (iteration)", fontsize=8, color=TEXT_2)
@@ -56,6 +57,7 @@ axes[0].set_ylabel("success [%]", fontsize=8, color=TEXT_2)
 axes[0].legend(frameon=False, fontsize=8, loc="lower right", labelcolor=TEXT)
 fig.suptitle("SitStand checkpoint sweep (512 robots each, eval_sitstand.py)", fontsize=12, color=TEXT, x=0.01, ha="left")
 fig.tight_layout(rect=(0, 0, 1, 0.94))
-out = os.path.join(ROOT, "exp006_sitstand_zero_head/outputs/2026-10-13_04-34-48_exp006/plots/ckpt_sweep_vs_exp002.png")
+import sys
+out = os.path.join(ROOT, sys.argv[1] if len(sys.argv) > 1 else "exp007_sitstand_head_impact/outputs/2026-10-13_15-21-16_exp007/plots/ckpt_sweep_exp002_006_007.png")
 fig.savefig(out, dpi=130, facecolor=SURFACE)
 print("wrote", out)

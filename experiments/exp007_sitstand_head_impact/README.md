@@ -21,5 +21,7 @@ exp002 の方策は座るたびに頭部前面（jaw_soft）を床について�
 docker compose -f docker/compose.yaml run -d --name microduck-rl-exp007 rl bash experiments/exp007_sitstand_head_impact/run.sh
 ```
 
-## 結果
-（実行中）
+## 結果（2026-10-14）
+- 詳細は `outputs/2026-10-13_15-21-16_exp007/summary.md`
+- 座るときの頭部接触: 32 体中 0〜1 体（exp002 model_2000 は 31 体, 最大 71 N）。上体を起こしたまま座るようになった
+- 静かな条件の「座る」が 1000 iter から 89〜100% で安定。model_2999: 静かな条件 座る 99% / 立つ 100%、最終段の外乱 座る 98% / 立つ 87%

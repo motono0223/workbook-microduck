@@ -45,6 +45,10 @@ def make_env_and_policy(task: str, checkpoint: str, num_envs: int, curriculum_it
   device = "cuda:0" if torch.cuda.is_available() else "cpu"
   env_cfg = load_env_cfg(task, play=not train_cfg)
   agent_cfg = load_rl_cfg(task)
+  # VelStand などの蒸留タスクは、runner 生成時に教師チェックポイントを wandb から取得しようとする。
+  # 評価では方策（actor）しか使わないので教師の読み込みを無効化する
+  if getattr(agent_cfg.algorithm, "bc_cfg", None) is not None:
+    agent_cfg.algorithm.bc_cfg = None
   env_cfg.scene.num_envs = num_envs
   if pins:
     pin_curriculum(env_cfg, pins)

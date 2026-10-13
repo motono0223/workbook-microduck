@@ -1,0 +1,16 @@
+{
+  "task": "Mjlab-Velocity-Flat-MicroDuck",
+  "checkpoint": "/workspace/experiments/exp001_baseline_velocity_flat/outputs/2026-10-10_08-15-27_exp001/model_2999.pt",
+  "num_envs": 512,
+  "steps": 1000,
+  "curriculum_iter": 0,
+  "cfg": "train",
+  "fall_deg": 60.0,
+  "warmup": "one auto-reset",
+  "ever_fallen_frac": 0.052734375,
+  "fallen_time_frac": 9.375e-05,
+  "falls_per_robot_minute": 0.158203125,
+  "fall_events": 27,
+  "falls_cmd_vx_mean": 0.029002375348850532,
+  "falls_with_cmd_vx_gt_0.5_frac": 0.0
+}

@@ -1,0 +1,16 @@
+{
+  "task": "Mjlab-VelStand-Flat-MicroDuck",
+  "checkpoint": "/workspace/experiments/exp004_velstand/outputs/2026-10-13_07-03-40_exp004/model_2999.pt",
+  "num_envs": 512,
+  "steps": 1000,
+  "curriculum_iter": 0,
+  "cfg": "train",
+  "fall_deg": 60.0,
+  "warmup": "one auto-reset",
+  "ever_fallen_frac": 0.17578125,
+  "fallen_time_frac": 0.000322265625,
+  "falls_per_robot_minute": 0.591796875,
+  "fall_events": 101,
+  "falls_cmd_vx_mean": 0.051998241352710396,
+  "falls_with_cmd_vx_gt_0.5_frac": 0.0
+}
