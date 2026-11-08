@@ -1,0 +1,10 @@
+exp001_single exp001_baseline_velocity_flat/outputs/2026-10-10_08-15-27_exp001/videos/model_2999.mp4 6
+exp001_multi exp001_baseline_velocity_flat/outputs/2026-10-10_08-15-27_exp001/videos/multi36_model_2999.mp4 10
+exp002_single exp002_sitstand/outputs/2026-10-12_01-19-41_exp002/videos/sitstand_single_60s_model_2000.mp4 5
+exp002_multi exp002_sitstand/outputs/2026-10-12_01-19-41_exp002/videos/multi36_model_2000.mp4 15
+exp003_multi exp003_standup/outputs/2026-10-12_03-30-00_exp003/videos/multi16_model_4999_curr5000.mp4 3
+exp004_multi exp004_velstand/outputs/2026-10-13_07-03-40_exp004/videos/multi16_model_2999_final.mp4 6
+exp004_single exp004_velstand/outputs/2026-10-13_07-03-40_exp004/videos/model_2999.mp4 2.5
+exp005_multi exp005_standup_seeds/outputs/2026-10-12_10-35-36_exp005_s3/videos/multi16_model_999_curr2500.mp4 3
+exp006_single exp006_sitstand_zero_head/outputs/2026-10-13_04-34-48_exp006/videos/sitstand_single_60s_model_2999.mp4 5
+exp007_single exp007_sitstand_head_impact/outputs/2026-10-13_15-21-16_exp007/videos/sitstand_single_60s_model_2999.mp4 5

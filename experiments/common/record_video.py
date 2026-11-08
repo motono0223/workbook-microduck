@@ -69,6 +69,9 @@ def main() -> None:
 
   env_cfg = load_env_cfg(args.task, play=not args.train_cfg)
   agent_cfg = load_rl_cfg(args.task)
+  # VelStand など蒸留タスクの runner は生成時に教師を wandb から取得しようとする。録画では方策しか使わないので無効化
+  if getattr(agent_cfg.algorithm, "bc_cfg", None) is not None:
+    agent_cfg.algorithm.bc_cfg = None
   env_cfg.scene.num_envs = args.num_envs
   if args.episode_s is not None:
     env_cfg.episode_length_s = args.episode_s
