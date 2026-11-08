@@ -13,3 +13,11 @@
 生成時は `npm install pptxgenjs@3.12.0` した作業ディレクトリに `data/`（extract.py の出力と evals.json）と
 `posters/`（videos.txt の時刻で切り出した PNG）を置き、`NODE_PATH=<node_modules> node build.js out` を実行する。
 `build.js` 冒頭の apply_theme.js は pptx スキルのスクリプトを参照している。
+
+## 付録: 報酬関数の解説（2026-11 追加）
+各デッキの末尾に「報酬関数の読み方」と、報酬項ごとの解説スライド（1 枚 2 項目: 数式・記号・何を測る・なぜ必要・有効条件・関数の形のグラフ）を付けている。
+- `reward_terms.json` … 4 タスクの run の params/env.yaml から作った「報酬名 → 実装関数・パラメータ・重み」
+- `build_reward_explain.py` → `reward_explain.json` … 実装コード（mjlab / mjlab_microduck の mdp.py）と cfg のコメントから
+  各項の数式・意図・グラフ用の点列（コードの式で計算）をまとめたもの。build.js がこれを読む
+- 注意: VelStand では 6 項目（upright, pose, body_pose_tracking, action_rate_l2, joint_torque_rate_l2, air_time）が
+  同名のまま別関数に差し替えられており、解説では Velocity 版の式を示し差分を「有効条件」に記載している

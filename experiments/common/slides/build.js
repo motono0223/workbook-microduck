@@ -250,7 +250,7 @@ function rewardRows(D0, cat) {
 }
 function slideRewards(pres, C, d, D0) {
   const pos = rewardRows(D0, "reward"), neg = rewardRows(D0, "penalty");
-  const intro = "報酬 = Σ 重み × 項（各制御ステップ, 時間刻みで正規化）。追従系は exp(−誤差²/σ²) 型。重みの「→」はカリキュラムによる変化";
+  const intro = "報酬 = Σ 重み × 項（各制御ステップ, 時間刻みで正規化）。追従系は exp(−誤差²/σ²) 型。重みの「→」はカリキュラムによる変化。各項目の数式・意図・関数の形は巻末の付録で解説";
   const head = ["項目", "重み", "内容"];
   if (pos.length <= 13 && neg.length <= 13) {
     const s = content(pres, "報酬関数の概要", "報酬と学習設定");
@@ -479,6 +479,90 @@ function slideClosing(pres, C, d) {
     { x: 8.55, y: 2.2, w: 4.0, h: 4.2, fontSize: 14, color: "FFFFFF", isTextBox: true, margin: 0, valign: "top", paraSpaceAfter: 8 });
 }
 
+// ---------- 付録: 報酬関数の解説 ----------
+const RX_PATH = path.join(HERE, "reward_explain.json");
+const RX = fs.existsSync(RX_PATH) ? JSON.parse(fs.readFileSync(RX_PATH, "utf8")) : {};
+
+function weightText(D0, name) {
+  const r = D0.rewards.find((x) => x.name === name);
+  let w1 = null;
+  D0.curriculum.forEach((c) => { if (c.target && c.target.reward_name === name && "weight" in (c.last_raw || {})) w1 = c.last_raw.weight; });
+  const w0 = fmt(r.weight, 4);
+  return w1 !== null && fmt(w1, 4) !== w0 ? `${w0} → ${fmt(w1, 4)}（カリキュラム）` : w0;
+}
+
+function slideRewardGuide(pres, C, d) {
+  const s = content(pres, "付録: 報酬関数の読み方", "付録: 報酬関数の解説");
+  card(s, C, MX, CONTENT_Y, 6.6, 1.35, "guide_formula");
+  s.addText([{ text: "1 制御ステップ（0.02 秒）の報酬\n", options: { fontSize: 12, color: HEX.muted, breakLine: true } },
+    { text: "r_t = Σ_i  w_i × term_i(s_t, a_t) × dt", options: { fontSize: 20, bold: true, color: HEX.text } }],
+  { x: MX + 0.25, y: CONTENT_Y + 0.15, w: 6.1, h: 1.05, isTextBox: true, margin: 0, valign: "middle" });
+  const rows = [["関数の返す値", "重み", "意味"],
+    ["報酬（≥ 0）", "正", "望ましい状態ほど大きい（目的）"],
+    ["コスト（≥ 0）", "負", "望ましくない量ほど大きい → 負の重みで罰する"],
+    ["自己符号反転（≤ 0）", "正", "関数が自分で負値を返す → 正の重みで罰になる"]];
+  table(s, rows, { x: MX, y: 3.05, w: 6.6, colW: [2.0, 0.7, 3.9], fontSize: 12 });
+  bullets(s, ["各項目のスライドの右のグラフは「重みを掛ける前の項の値」を 1 つの変数に対して描いたもの",
+    "追従系の多くはガウス型 exp(−誤差²/σ²): 誤差 0 で 1、σ で約 0.37。σ が小さいほど「ほぼ完璧」でないと報酬が出ない",
+    "ゲート（条件）付きの項や複数の量の積は 1 次元の曲線で描けないため、条件を文章で示す",
+    "重みの「→」はカリキュラムで学習中に変わることを示す（例: 動作を覚えた後にペナルティを強める）"],
+    { x: MX, y: 4.85, w: 6.6, h: 2.0, margin: 0, fontSize: 12 });
+  const xs = [...Array(26).keys()].map((i) => +(i * 0.08).toFixed(2));
+  const sig = [0.2, 0.5, 1.0];
+  s.addChart("line", sig.map((sg) => ({ name: `σ = ${sg}`, labels: xs.map(String), values: xs.map((x) => +Math.exp(-(x * x) / (sg * sg)).toFixed(4)) })),
+    { x: 7.55, y: CONTENT_Y, w: 5.2, h: 3.6, ...chartBase(C), title: "ガウス型の報酬 exp(−誤差²/σ²)", chartColors: [HEX.orange, HEX.teal, HEX.green],
+      lineSize: 2, lineDataSymbol: "none", showLegend: true, legendPos: "b", valAxisMinVal: 0, valAxisMaxVal: 1,
+      catAxisLabelFrequency: 5, catAxisTitle: "誤差", showCatAxisTitle: true, catAxisTitleFontSize: 9, catAxisTitleColor: HEX.muted, objectName: "gauss_guide" });
+  s.addText("この付録の数式・条件は実装コード（mjlab / mjlab_microduck の mdp）から読み取ったもの。パラメータはこの run の設定値",
+    { x: 7.55, y: 5.25, w: 5.2, h: 0.8, fontSize: 11, color: HEX.muted, isTextBox: true, margin: 0, valign: "top" });
+}
+
+function rewardTermBlock(s, C, D0, name, y, idx) {
+  const e = RX[name]; const [cat] = REWARD_DESC[name] || ["reward"];
+  const isPen = cat === "penalty";
+  const rowH = 2.62, lw = 7.75;
+  card(s, C, MX, y, W - 2 * MX, rowH, `rt_card${idx}`);
+  // 見出し
+  s.addText(name, { x: MX + 0.25, y: y + 0.12, w: 4.2, h: 0.4, fontSize: 16, bold: true, color: HEX.text, isTextBox: true, margin: 0 });
+  s.addShape("roundRect", { x: MX + 4.5, y: y + 0.17, w: 1.1, h: 0.3, rectRadius: 0.1, fill: { color: isPen ? HEX.orange : HEX.teal }, line: { color: isPen ? HEX.orange : HEX.teal }, objectName: `rt_tag${idx}` });
+  s.addText(isPen ? "ペナルティ" : "報酬", { x: MX + 4.5, y: y + 0.17, w: 1.1, h: 0.3, fontSize: 10, bold: true, color: "FFFFFF", align: "center", valign: "middle", isTextBox: true, margin: 0 });
+  s.addText(`重み ${weightText(D0, name)}`, { x: MX + 5.75, y: y + 0.12, w: 2.3, h: 0.4, fontSize: 11, color: HEX.muted, isTextBox: true, margin: 0, valign: "middle", fit: "shrink" });
+  if (!e) {
+    s.addText("（解説データなし）", { x: MX + 0.25, y: y + 0.6, w: lw, h: 0.4, fontSize: 12, color: HEX.muted, isTextBox: true, margin: 0 });
+    return;
+  }
+  // 数式
+  s.addShape("rect", { x: MX + 0.25, y: y + 0.58, w: lw - 0.1, h: 0.5, fill: { color: "FFFFFF" }, line: { color: HEX.grid }, objectName: `rt_formula${idx}` });
+  s.addText(e.formula, { x: MX + 0.35, y: y + 0.58, w: lw - 0.3, h: 0.5, fontSize: 11, color: HEX.text, isTextBox: true, margin: 0, valign: "middle", fit: "shrink" });
+  const lines = [["記号", e.symbols], ["何を測る", e.what], ["なぜ必要", e.why]];
+  if (e.gate) lines.push(["有効条件", e.gate]);
+  s.addText(lines.flatMap(([k, v], i) => [{ text: `${k}  `, options: { bold: true, color: isPen ? HEX.orange : HEX.teal } },
+    { text: v, options: { color: HEX.text, breakLine: i < lines.length - 1 } }]),
+  { x: MX + 0.25, y: y + 1.15, w: lw - 0.1, h: rowH - 1.25, fontSize: 10, isTextBox: true, margin: 0, valign: "top", paraSpaceAfter: 2, fit: "shrink" });
+  // 右: 関数の形
+  const cx = MX + lw + 0.3, cw = W - MX - cx - 0.15;
+  const curve = (e.shape && e.shape.curve) || [];
+  if (curve.length >= 3) {
+    s.addChart("line", [{ name, labels: curve.map(([x]) => String(+(+x).toPrecision(3))), values: curve.map(([, yy]) => +(+yy).toPrecision(4)) }],
+      { x: cx, y: y + 0.1, w: cw, h: rowH - 0.2, ...chartBase(C), title: "項の値（重み掛け前）", titleFontSize: 10, chartColors: [isPen ? HEX.orange : HEX.teal],
+        lineSize: 2, lineDataSymbol: "none", showLegend: false, catAxisLabelFrequency: Math.max(1, Math.round(curve.length / 5)),
+        catAxisTitle: e.shape.x || "", showCatAxisTitle: true, catAxisTitleFontSize: 9, catAxisTitleColor: HEX.muted, objectName: `rt_chart${idx}` });
+  } else {
+    const note = (e.shape && e.shape.params && e.shape.params.note) || "条件付き・複数量の項のため 1 次元の曲線では表せない";
+    s.addShape("rect", { x: cx, y: y + 0.25, w: cw, h: rowH - 0.5, fill: { color: "FFFFFF" }, line: { color: HEX.grid, dashType: "dash" }, objectName: `rt_nochart${idx}` });
+    s.addText(note, { x: cx + 0.15, y: y + 0.3, w: cw - 0.3, h: rowH - 0.6, fontSize: 10, color: HEX.muted, isTextBox: true, margin: 0, valign: "middle", fit: "shrink" });
+  }
+}
+
+function slideRewardTerms(pres, C, d, D0) {
+  const order = [...rewardRows(D0, "reward"), ...rewardRows(D0, "penalty")].map((r) => r[0]);
+  for (let i = 0; i < order.length; i += 2) {
+    const pair = order.slice(i, i + 2);
+    const s = content(pres, `付録: 報酬項の解説（${Math.floor(i / 2) + 1}/${Math.ceil(order.length / 2)}）`, "付録: 報酬関数の解説");
+    pair.forEach((name, k) => rewardTermBlock(s, C, D0, name, CONTENT_Y + k * 2.78, i + k));
+  }
+}
+
 async function buildDeck(d, outDir) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
@@ -499,6 +583,7 @@ async function buildDeck(d, outDir) {
   addSec("評価"); evalSlides(pres, C, d, Ds); slideExtraImages(pres, C, d);
   addSec("推論動画"); d.videos.forEach((vd) => slideVideo(pres, C, d, vd));
   addSec("まとめ"); slideClosing(pres, C, d);
+  addSec("付録: 報酬関数の解説"); slideRewardGuide(pres, C, d); slideRewardTerms(pres, C, d, D0);
   const out = path.join(outDir, `${d.id}.pptx`);
   await pres.writeFile({ fileName: out });
   await applyTheme(out, THEME);

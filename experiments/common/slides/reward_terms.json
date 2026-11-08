@@ -1,0 +1,1277 @@
+{
+ "track_linear_velocity": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.track_linear_velocity",
+  "params": {
+   "velocity": {
+    "command_name": "twist",
+    "std": 0.31622776601683794
+   },
+   "velstand": {
+    "command_name": "twist",
+    "std": 0.31622776601683794
+   }
+  },
+  "weight": {
+   "velocity": 2.0,
+   "velstand": 2.0
+  }
+ },
+ "track_angular_velocity": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.track_angular_velocity",
+  "params": {
+   "velocity": {
+    "command_name": "twist",
+    "std": 0.7071067811865476
+   },
+   "velstand": {
+    "command_name": "twist",
+    "std": 0.7071067811865476
+   }
+  },
+  "weight": {
+   "velocity": 2.0,
+   "velstand": 2.0
+  }
+ },
+ "upright": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.upright",
+  "params": {
+   "velocity": {
+    "std": 0.22360679774997896,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   },
+   "velstand": {
+    "std": 0.22360679774997896,
+    "command_name": "body_pose",
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "velocity": 2.0,
+   "velstand": 2.0
+  }
+ },
+ "pose": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.variable_posture",
+  "params": {
+   "velocity": {
+    "asset_cfg": {
+     "joint_names": [
+      "^(?!passive_|.*neck.*|.*head.*).*"
+     ]
+    },
+    "command_name": "twist",
+    "std_standing": {
+     ".*hip_yaw.*": 0.1,
+     ".*hip_roll.*": 0.05,
+     ".*hip_pitch.*": 0.15,
+     ".*knee.*": 0.15,
+     ".*ankle.*": 0.1
+    },
+    "std_walking": {
+     ".*hip_yaw.*": 0.3,
+     ".*hip_roll.*": 0.05,
+     ".*hip_pitch.*": 0.4,
+     ".*knee.*": 0.4,
+     ".*ankle.*": 0.25
+    },
+    "std_running": {
+     ".*hip_yaw.*": 0.3,
+     ".*hip_roll.*": 0.05,
+     ".*hip_pitch.*": 0.4,
+     ".*knee.*": 0.4,
+     ".*ankle.*": 0.25
+    },
+    "walking_threshold": 0.01,
+    "running_threshold": 1.5
+   },
+   "velstand": {
+    "asset_cfg": {
+     "joint_names": [
+      "^(?!passive_|.*neck.*|.*head.*).*"
+     ]
+    },
+    "command_name": "twist",
+    "std_standing": {
+     ".*hip_yaw.*": 0.1,
+     ".*hip_roll.*": 0.05,
+     ".*hip_pitch.*": 0.15,
+     ".*knee.*": 0.15,
+     ".*ankle.*": 0.1
+    },
+    "std_walking": {
+     ".*hip_yaw.*": 0.3,
+     ".*hip_roll.*": 0.05,
+     ".*hip_pitch.*": 0.4,
+     ".*knee.*": 0.4,
+     ".*ankle.*": 0.25
+    },
+    "std_running": {
+     ".*hip_yaw.*": 0.3,
+     ".*hip_roll.*": 0.05,
+     ".*hip_pitch.*": 0.4,
+     ".*knee.*": 0.4,
+     ".*ankle.*": 0.25
+    },
+    "walking_threshold": 0.01,
+    "running_threshold": 1.5,
+    "std_body": {
+     ".*hip_yaw.*": 0.1,
+     ".*hip_roll.*": 0.25,
+     ".*hip_pitch.*": 0.4,
+     ".*knee.*": 0.4,
+     ".*ankle.*": 0.3
+    },
+    "body_command_name": "body_pose"
+   }
+  },
+  "weight": {
+   "velocity": 1.0,
+   "velstand": 1.0
+  }
+ },
+ "body_ang_vel": {
+  "tasks": [
+   "velocity",
+   "sitstand",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.body_angular_velocity_penalty",
+  "params": {
+   "velocity": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   },
+   "sitstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   },
+   "standup": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   },
+   "velstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "velocity": -0.05,
+   "sitstand": -0.05,
+   "standup": -0.05,
+   "velstand": -0.05
+  }
+ },
+ "angular_momentum": {
+  "tasks": [
+   "velocity",
+   "sitstand",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.angular_momentum_penalty",
+  "params": {
+   "velocity": {
+    "sensor_name": "robot/root_angmom"
+   },
+   "sitstand": {
+    "sensor_name": "robot/root_angmom"
+   },
+   "standup": {
+    "sensor_name": "robot/root_angmom"
+   },
+   "velstand": {
+    "sensor_name": "robot/root_angmom"
+   }
+  },
+  "weight": {
+   "velocity": -0.02,
+   "sitstand": -0.02,
+   "standup": -0.02,
+   "velstand": -0.02
+  }
+ },
+ "dof_pos_limits": {
+  "tasks": [
+   "velocity",
+   "sitstand",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab.envs.mdp.rewards.joint_pos_limits",
+  "params": {
+   "velocity": {},
+   "sitstand": {},
+   "standup": {},
+   "velstand": {}
+  },
+  "weight": {
+   "velocity": -1.0,
+   "sitstand": -1.0,
+   "standup": -1.0,
+   "velstand": -1.0
+  }
+ },
+ "action_rate_l2": {
+  "tasks": [
+   "velocity",
+   "sitstand",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab.envs.mdp.rewards.action_rate_l2",
+  "params": {
+   "velocity": {},
+   "sitstand": {},
+   "standup": {},
+   "velstand": {
+    "fallen_scale": 0.1,
+    "gate_tilt_above_deg": 40.0
+   }
+  },
+  "weight": {
+   "velocity": -0.1,
+   "sitstand": -0.1,
+   "standup": -0.1,
+   "velstand": -1.0
+  }
+ },
+ "air_time": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.feet_air_time",
+  "params": {
+   "velocity": {
+    "sensor_name": "feet_ground_contact",
+    "threshold_min": 0.125,
+    "threshold_max": 0.3,
+    "command_name": "twist",
+    "command_threshold": 0.01
+   },
+   "velstand": {
+    "sensor_name": "feet_ground_contact",
+    "threshold_min": 0.125,
+    "threshold_max": 0.3,
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "gate_tilt_above_deg": 40.0
+   }
+  },
+  "weight": {
+   "velocity": 3.0,
+   "velstand": 3.0
+  }
+ },
+ "foot_clearance": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.feet_clearance",
+  "params": {
+   "velocity": {
+    "target_height": 0.02,
+    "height_sensor_name": "foot_height_scan",
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "asset_cfg": {}
+   },
+   "velstand": {
+    "target_height": 0.02,
+    "height_sensor_name": "foot_height_scan",
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "asset_cfg": {}
+   }
+  },
+  "weight": {
+   "velocity": -2.0,
+   "velstand": -2.0
+  }
+ },
+ "foot_swing_height": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.feet_swing_height",
+  "params": {
+   "velocity": {
+    "sensor_name": "feet_ground_contact",
+    "height_sensor_name": "foot_height_scan",
+    "target_height": 0.02,
+    "command_name": "twist",
+    "command_threshold": 0.01
+   },
+   "velstand": {
+    "sensor_name": "feet_ground_contact",
+    "height_sensor_name": "foot_height_scan",
+    "target_height": 0.02,
+    "command_name": "twist",
+    "command_threshold": 0.01
+   }
+  },
+  "weight": {
+   "velocity": -0.25,
+   "velstand": -0.25
+  }
+ },
+ "foot_slip": {
+  "tasks": [
+   "velocity",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.feet_slip",
+  "params": {
+   "velocity": {
+    "sensor_name": "feet_ground_contact",
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "asset_cfg": {}
+   },
+   "velstand": {
+    "sensor_name": "feet_ground_contact",
+    "command_name": "twist",
+    "command_threshold": 0.01,
+    "asset_cfg": {}
+   }
+  },
+  "weight": {
+   "velocity": -0.1,
+   "velstand": -0.1
+  }
+ },
+ "self_collisions": {
+  "tasks": [
+   "velocity",
+   "sitstand",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab.tasks.velocity.mdp.rewards.self_collision_cost",
+  "params": {
+   "velocity": {
+    "sensor_name": "self_collision"
+   },
+   "sitstand": {
+    "sensor_name": "self_collision"
+   },
+   "standup": {
+    "sensor_name": "self_collision"
+   },
+   "velstand": {
+    "sensor_name": "self_collision"
+   }
+  },
+  "weight": {
+   "velocity": -1.0,
+   "sitstand": -1.0,
+   "standup": -1.0,
+   "velstand": -1.0
+  }
+ },
+ "head_pose_tracking": {
+  "tasks": [
+   "velocity",
+   "sitstand",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.head_pose_tracking",
+  "params": {
+   "velocity": {
+    "command_name": "head_pose",
+    "std": 0.5
+   },
+   "sitstand": {
+    "command_name": "head_pose",
+    "std": 0.5
+   },
+   "standup": {
+    "command_name": "head_pose",
+    "std": 0.5
+   },
+   "velstand": {
+    "command_name": "head_pose",
+    "std": 0.5
+   }
+  },
+  "weight": {
+   "velocity": 2.0,
+   "sitstand": 0.75,
+   "standup": 0.75,
+   "velstand": 2.0
+  }
+ },
+ "body_pose_tracking": {
+  "tasks": [
+   "velocity",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.body_pose_tracking_6d",
+  "params": {
+   "velocity": {
+    "command_name": "body_pose",
+    "nominal_height": 0.095,
+    "xy_std": 0.05,
+    "z_std": 0.02,
+    "angle_std": 0.2617993877991494
+   },
+   "standup": {
+    "command_name": "body_pose",
+    "nominal_height": 0.115,
+    "z_std": 0.01,
+    "angle_std": 0.08726646259971647,
+    "axis_weights": [
+     0.0,
+     0.0,
+     1.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "vel_gate_command_name": null
+   },
+   "velstand": {
+    "command_name": "body_pose",
+    "nominal_height": 0.116,
+    "z_std": 0.01,
+    "angle_std": 0.08726646259971647,
+    "axis_weights": [
+     0.0,
+     0.0,
+     1.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "standing_gate_command_name": "twist"
+   }
+  },
+  "weight": {
+   "velocity": 0.0,
+   "standup": 0.0,
+   "velstand": 2.0
+  }
+ },
+ "head_pose_bias": {
+  "tasks": [
+   "velocity",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.head_pose_bias_penalty",
+  "params": {
+   "velocity": {
+    "command_name": "head_pose",
+    "tau_s": 1.0
+   },
+   "standup": {
+    "command_name": "head_pose",
+    "tau_s": 1.0,
+    "gate_height_low": 0.09,
+    "gate_height_high": 0.11,
+    "gate_tilt_full_deg": 20.0,
+    "gate_tilt_zero_deg": 45.0
+   },
+   "velstand": {
+    "command_name": "head_pose",
+    "tau_s": 1.0,
+    "gate_height_low": 0.09,
+    "gate_height_high": 0.11,
+    "gate_tilt_full_deg": 20.0,
+    "gate_tilt_zero_deg": 40.0
+   }
+  },
+  "weight": {
+   "velocity": 0.0,
+   "standup": 0.0,
+   "velstand": 3.0
+  }
+ },
+ "posture_pose_legs": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_pose_match",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "std": 0.5,
+    "joint_indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "sit_overrides": {
+     "1": 0.0,
+     "2": -0.4079,
+     "3": 1.35,
+     "4": 0.0,
+     "10": 0.0,
+     "11": 0.4079,
+     "12": -1.35,
+     "13": 0.0
+    }
+   }
+  },
+  "weight": {
+   "sitstand": 4.0
+  }
+ },
+ "posture_pose_l1": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_pose_l1",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "joint_indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "sit_overrides": {
+     "1": 0.0,
+     "2": -0.4079,
+     "3": 1.35,
+     "4": 0.0,
+     "10": 0.0,
+     "11": 0.4079,
+     "12": -1.35,
+     "13": 0.0
+    }
+   }
+  },
+  "weight": {
+   "sitstand": 1.0
+  }
+ },
+ "posture_height": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_height_gaussian",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "sit_z": 0.06,
+    "stand_z": 0.115,
+    "std": 0.04
+   }
+  },
+  "weight": {
+   "sitstand": 1.0
+  }
+ },
+ "posture_height_sharp": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_height_gaussian",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "sit_z": 0.06,
+    "stand_z": 0.115,
+    "std": 0.015
+   }
+  },
+  "weight": {
+   "sitstand": 1.0
+  }
+ },
+ "posture_height_l1": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_height_l1",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "sit_z": 0.06,
+    "stand_z": 0.115
+   }
+  },
+  "weight": {
+   "sitstand": 6.0
+  }
+ },
+ "rise_bootstrap": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_rise_bootstrap",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "max_height": 0.125,
+    "max_vz": 0.08
+   }
+  },
+  "weight": {
+   "sitstand": 0.75
+  }
+ },
+ "descent_speed": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.trunk_downward_velocity_penalty",
+  "params": {
+   "sitstand": {
+    "max_down_vel": 0.05,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "sitstand": 10.0
+  }
+ },
+ "rise_speed": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.trunk_upward_velocity_penalty",
+  "params": {
+   "sitstand": {
+    "max_up_vel": 0.08,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "sitstand": 0.0
+  }
+ },
+ "gentle_motion": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.trunk_vertical_accel_penalty",
+  "params": {
+   "sitstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "sitstand": 0.05
+  }
+ },
+ "upright_linear": {
+  "tasks": [
+   "sitstand",
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.body_upright_linear",
+  "params": {
+   "sitstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   },
+   "standup": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "sitstand": 2.5,
+   "standup": 1.5
+  }
+ },
+ "upright_while_tall": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.upright_while_tall",
+  "params": {
+   "sitstand": {
+    "height_low": 0.075,
+    "height_high": 0.1,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "sitstand": 1.5
+  }
+ },
+ "posture_stillness": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_stillness",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "sit_z": 0.06,
+    "stand_z": 0.115,
+    "band_full": 0.012,
+    "band_zero": 0.03,
+    "vel_std": 0.05,
+    "tilt_full_deg": 25.0,
+    "tilt_zero_deg": 60.0
+   }
+  },
+  "weight": {
+   "sitstand": 2.0
+  }
+ },
+ "posture_composite": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.posture_composite",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "sit_overrides": {
+     "1": 0.0,
+     "2": -0.4079,
+     "3": 1.35,
+     "4": 0.0,
+     "10": 0.0,
+     "11": 0.4079,
+     "12": -1.35,
+     "13": 0.0
+    },
+    "joint_indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "sit_z": 0.06,
+    "stand_z": 0.115,
+    "height_std": 0.03,
+    "upright_std": 0.4,
+    "pose_std": 0.4,
+    "head_std": 0.4
+   }
+  },
+  "weight": {
+   "sitstand": 3.0
+  }
+ },
+ "joint_torque_rate_l2": {
+  "tasks": [
+   "sitstand",
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.joint_torque_rate_l2",
+  "params": {
+   "sitstand": {},
+   "standup": {},
+   "velstand": {
+    "fallen_scale": 0.1,
+    "gate_tilt_above_deg": 40.0
+   }
+  },
+  "weight": {
+   "sitstand": 0.0,
+   "standup": 0.0,
+   "velstand": -0.002
+  }
+ },
+ "neck_strain_leaned": {
+  "tasks": [
+   "sitstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.neck_torque_when_tilted",
+  "params": {
+   "sitstand": {
+    "command_name": "twist",
+    "tilt_start_deg": 12.0,
+    "tilt_full_deg": 25.0,
+    "torque_scale": 0.1
+   }
+  },
+  "weight": {
+   "sitstand": -0.5
+  }
+ },
+ "head_impact": {
+  "tasks": [
+   "sitstand",
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.body_impact_cost",
+  "params": {
+   "sitstand": {
+    "sensor_name": "head_ground_contact",
+    "threshold": 15.0
+   },
+   "velstand": {
+    "sensor_name": "head_ground_contact",
+    "threshold": 15.0
+   }
+  },
+  "weight": {
+   "sitstand": -0.005,
+   "velstand": -0.0025
+  }
+ },
+ "pose_stand_legs": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.pose_target_match",
+  "params": {
+   "standup": {
+    "std": 0.5,
+    "joint_indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "target_overrides": null
+   }
+  },
+  "weight": {
+   "standup": 2.0
+  }
+ },
+ "pose_stand_l1": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.pose_l1_penalty",
+  "params": {
+   "standup": {
+    "joint_indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "target_overrides": null
+   }
+  },
+  "weight": {
+   "standup": 1.25
+  }
+ },
+ "height_stand": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.height_target_gaussian",
+  "params": {
+   "standup": {
+    "std": 0.04,
+    "target_height": 0.115,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "standup": 1.0
+  }
+ },
+ "height_stand_sharp": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.height_target_gaussian",
+  "params": {
+   "standup": {
+    "std": 0.015,
+    "target_height": 0.115,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "standup": 1.0
+  }
+ },
+ "height_stand_l1": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.height_l1_penalty",
+  "params": {
+   "standup": {
+    "target_height": 0.115,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "standup": 7.5
+  }
+ },
+ "com_upward_velocity": {
+  "tasks": [
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.com_upward_velocity",
+  "params": {
+   "standup": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    },
+    "max_height": 0.125
+   },
+   "velstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    },
+    "max_height": 0.125,
+    "gate_z_below": 0.0,
+    "gate_tilt_above_deg": 40.0
+   }
+  },
+  "weight": {
+   "standup": 0.75,
+   "velstand": 0.0
+  }
+ },
+ "gentle_rise": {
+  "tasks": [
+   "standup",
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.trunk_vertical_accel_penalty",
+  "params": {
+   "standup": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   },
+   "velstand": {}
+  },
+  "weight": {
+   "standup": 0.005,
+   "velstand": 0.00125
+  }
+ },
+ "arrival_damping": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.body_ang_vel_at_height",
+  "params": {
+   "standup": {
+    "height_low": 0.09,
+    "height_high": 0.11,
+    "tilt_full_deg": 20.0,
+    "tilt_zero_deg": 45.0,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "standup": 0.0
+  }
+ },
+ "upright_sharp": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.upright_gaussian_at_height",
+  "params": {
+   "standup": {
+    "std": 0.3,
+    "height_low": 0.06,
+    "height_high": 0.115,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "standup": 1.5
+  }
+ },
+ "standing_composite": {
+  "tasks": [
+   "standup"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.standing_composite_score",
+  "params": {
+   "standup": {
+    "target_height": 0.115,
+    "height_std": 0.04,
+    "upright_std": 0.4,
+    "pose_std": 0.4,
+    "joint_indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "target_overrides": null,
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "standup": 3.75
+  }
+ },
+ "upright_progress": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.upright_progress",
+  "params": {
+   "velstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    }
+   }
+  },
+  "weight": {
+   "velstand": 5.0
+  }
+ },
+ "height_progress": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.height_progress",
+  "params": {
+   "velstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    },
+    "ceiling": 0.115
+   }
+  },
+  "weight": {
+   "velstand": 30.0
+  }
+ },
+ "servo_impact": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.body_impact_cost",
+  "params": {
+   "velstand": {
+    "sensor_name": "servo_ground_contact",
+    "threshold": 2.0
+   }
+  },
+  "weight": {
+   "velstand": -0.005
+  }
+ },
+ "trunk_impact": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.body_impact_cost",
+  "params": {
+   "velstand": {
+    "sensor_name": "trunk_ground_contact",
+    "threshold": 20.0
+   }
+  },
+  "weight": {
+   "velstand": -0.0025
+  }
+ },
+ "servo_acc_spike": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.servo_acc_spike_penalty",
+  "params": {
+   "velstand": {
+    "acc_thresh": 300.0
+   }
+  },
+  "weight": {
+   "velstand": -0.00025
+  }
+ },
+ "servo_stall": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.servo_stall_penalty",
+  "params": {
+   "velstand": {
+    "torque_thresh": 0.4,
+    "vel_thresh": 0.5
+   }
+  },
+  "weight": {
+   "velstand": -0.0125
+  }
+ },
+ "fallen_tax": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.fallen_state_penalty",
+  "params": {
+   "velstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    },
+    "gate_tilt_above_deg": 40.0,
+    "release_tilt_below_deg": 25.0,
+    "release_z_above": 0.09
+   }
+  },
+  "weight": {
+   "velstand": 0.0
+  }
+ },
+ "recovery_success": {
+  "tasks": [
+   "velstand"
+  ],
+  "func": "mjlab_microduck.tasks.mdp.recovery_success",
+  "params": {
+   "velstand": {
+    "asset_cfg": {
+     "body_names": [
+      "trunk_base"
+     ]
+    },
+    "fallen_tilt_deg": 40.0,
+    "min_fallen_s": 0.5,
+    "up_tilt_deg": 25.0,
+    "up_z": 0.09
+   }
+  },
+  "weight": {
+   "velstand": 0.0
+  }
+ }
+}
